@@ -1,0 +1,280 @@
+dependencies:
+  '@apidevtools/swagger-parser': 10.0.2_openapi-types@7.2.3
+  '@types/node': 14.14.31
+  chalk: 4.1.0
+  deep-object-diff: 1.1.0
+  prettier: 2.2.1
+devDependencies:
+  openapi-types: 7.2.3
+  ts-node: 9.1.1_typescript@4.1.5
+  typescript: 4.1.5
+lockfileVersion: 5.2
+packages:
+  /@apidevtools/json-schema-ref-parser/9.0.7:
+    dependencies:
+      '@jsdevtools/ono': 7.1.3
+      call-me-maybe: 1.0.1
+      js-yaml: 3.14.1
+    dev: false
+    resolution:
+      integrity: sha1-ZKp/WzTkPXTqnkCLkN37oCBQ3eM=
+      tarball: '@apidevtools/json-schema-ref-parser/download/@apidevtools/json-schema-ref-parser-9.0.7.tgz'
+  /@apidevtools/openapi-schemas/2.0.4:
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha1-uuHO9367KzcFx8xpESgdpRU8GrM=
+      tarball: '@apidevtools/openapi-schemas/download/@apidevtools/openapi-schemas-2.0.4.tgz'
+  /@apidevtools/swagger-methods/3.0.2:
+    dev: false
+    resolution:
+      integrity: sha1-t4mjYuBVsDQNBHEur+cCfdwawmc=
+      tarball: '@apidevtools/swagger-methods/download/@apidevtools/swagger-methods-3.0.2.tgz'
+  /@apidevtools/swagger-parser/10.0.2_openapi-types@7.2.3:
+    dependencies:
+      '@apidevtools/json-schema-ref-parser': 9.0.7
+      '@apidevtools/openapi-schemas': 2.0.4
+      '@apidevtools/swagger-methods': 3.0.2
+      '@jsdevtools/ono': 7.1.3
+      call-me-maybe: 1.0.1
+      openapi-types: 7.2.3
+      z-schema: 4.2.3
+    dev: false
+    peerDependencies:
+      openapi-types: '>=7'
+    resolution:
+      integrity: sha1-9BRa+3w6O6/gN28AO1w73q4XqVI=
+      tarball: '@apidevtools/swagger-parser/download/@apidevtools/swagger-parser-10.0.2.tgz'
+  /@jsdevtools/ono/7.1.3:
+    dev: false
+    resolution:
+      integrity: sha1-nfA7vXxpalxYiFw0qgbaQchUN5Y=
+      tarball: '@jsdevtools/ono/download/@jsdevtools/ono-7.1.3.tgz'
+  /@types/node/14.14.31:
+    dev: false
+    resolution:
+      integrity: sha1-cihr0z0TeqDRUtR+x8F2JWPTQFU=
+      tarball: '@types/node/download/@types/node-14.14.31.tgz'
+  /ansi-styles/4.3.0:
+    dependencies:
+      color-convert: 2.0.1
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha1-7dgDYornHATIWuegkG7a00tkiTc=
+      tarball: ansi-styles/download/ansi-styles-4.3.0.tgz
+  /arg/4.1.3:
+    dev: true
+    resolution:
+      integrity: sha1-Jp/HrVuOQstjyJbVZmAXJhwUQIk=
+      tarball: arg/download/arg-4.1.3.tgz
+  /argparse/1.0.10:
+    dependencies:
+      sprintf-js: 1.0.3
+    dev: false
+    resolution:
+      integrity: sha1-vNZ5HqWuCXJeF+WtmIE0zUCz2RE=
+      tarball: argparse/download/argparse-1.0.10.tgz
+  /buffer-from/1.1.1:
+    dev: true
+    resolution:
+      integrity: sha1-MnE7wCj3XAL9txDXx7zsHyxgcO8=
+      tarball: buffer-from/download/buffer-from-1.1.1.tgz
+  /call-me-maybe/1.0.1:
+    dev: false
+    resolution:
+      integrity: sha1-JtII6onje1y95gJQoV8DHBak1ms=
+      tarball: call-me-maybe/download/call-me-maybe-1.0.1.tgz
+  /chalk/4.1.0:
+    dependencies:
+      ansi-styles: 4.3.0
+      supports-color: 7.2.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha1-ThSHCmGNni7dl92DRf2dncMVZGo=
+      tarball: chalk/download/chalk-4.1.0.tgz
+  /color-convert/2.0.1:
+    dependencies:
+      color-name: 1.1.4
+    dev: false
+    engines:
+      node: '>=7.0.0'
+    resolution:
+      integrity: sha1-ctOmjVmMm9s68q0ehPIdiWq9TeM=
+      tarball: color-convert/download/color-convert-2.0.1.tgz
+  /color-name/1.1.4:
+    dev: false
+    resolution:
+      integrity: sha1-wqCah6y95pVD3m9j+jmVyCbFNqI=
+      tarball: color-name/download/color-name-1.1.4.tgz
+  /commander/2.20.3:
+    dev: false
+    optional: true
+    resolution:
+      integrity: sha1-/UhehMA+tIgcIHIrpIA16FMa6zM=
+      tarball: commander/download/commander-2.20.3.tgz?cache=0&sync_timestamp=1613397184151&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fcommander%2Fdownload%2Fcommander-2.20.3.tgz
+  /create-require/1.1.1:
+    dev: true
+    resolution:
+      integrity: sha1-wdfo8eX2z8n/ZfnNNS03NIdWwzM=
+      tarball: create-require/download/create-require-1.1.1.tgz
+  /deep-object-diff/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-1vq/R2wu0XUfyU1cppPS7YwYvFo=
+      tarball: deep-object-diff/download/deep-object-diff-1.1.0.tgz
+  /diff/4.0.2:
+    dev: true
+    engines:
+      node: '>=0.3.1'
+    resolution:
+      integrity: sha1-YPOuy4nV+uUgwRqhnvwruYKq3n0=
+      tarball: diff/download/diff-4.0.2.tgz
+  /esprima/4.0.1:
+    dev: false
+    engines:
+      node: '>=4'
+    hasBin: true
+    resolution:
+      integrity: sha1-E7BM2z5sXRnfkatph6hpVhmwqnE=
+      tarball: esprima/download/esprima-4.0.1.tgz
+  /has-flag/4.0.0:
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha1-lEdx/ZyByBJlxNaUGGDaBrtZR5s=
+      tarball: has-flag/download/has-flag-4.0.0.tgz
+  /js-yaml/3.14.1:
+    dependencies:
+      argparse: 1.0.10
+      esprima: 4.0.1
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha1-2ugS/bOCX6MGYJqHFzg8UMNqBTc=
+      tarball: js-yaml/download/js-yaml-3.14.1.tgz
+  /lodash.get/4.4.2:
+    dev: false
+    resolution:
+      integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+      tarball: lodash.get/download/lodash.get-4.4.2.tgz
+  /lodash.isequal/4.5.0:
+    dev: false
+    resolution:
+      integrity: sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+      tarball: lodash.isequal/download/lodash.isequal-4.5.0.tgz
+  /make-error/1.3.6:
+    dev: true
+    resolution:
+      integrity: sha1-LrLjfqm2fEiR9oShOUeZr0hM96I=
+      tarball: make-error/download/make-error-1.3.6.tgz
+  /openapi-types/7.2.3:
+    dev: true
+    resolution:
+      integrity: sha1-g4KZEaNBCgIvDgzysLLmcjLM+W4=
+      tarball: openapi-types/download/openapi-types-7.2.3.tgz
+  /prettier/2.2.1:
+    dev: false
+    engines:
+      node: '>=10.13.0'
+    hasBin: true
+    resolution:
+      integrity: sha1-eVoaeN1S8HPaDNQrIfnJE4GSP/U=
+      tarball: prettier/download/prettier-2.2.1.tgz
+  /source-map-support/0.5.19:
+    dependencies:
+      buffer-from: 1.1.1
+      source-map: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha1-qYti+G3K9PZzmWSMCFKRq56P7WE=
+      tarball: source-map-support/download/source-map-support-0.5.19.tgz
+  /source-map/0.6.1:
+    dev: true
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha1-dHIq8y6WFOnCh6jQu95IteLxomM=
+      tarball: source-map/download/source-map-0.6.1.tgz
+  /sprintf-js/1.0.3:
+    dev: false
+    resolution:
+      integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
+      tarball: sprintf-js/download/sprintf-js-1.0.3.tgz
+  /supports-color/7.2.0:
+    dependencies:
+      has-flag: 4.0.0
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha1-G33NyzK4E4gBs+R4umpRyqiWSNo=
+      tarball: supports-color/download/supports-color-7.2.0.tgz
+  /ts-node/9.1.1_typescript@4.1.5:
+    dependencies:
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      source-map-support: 0.5.19
+      typescript: 4.1.5
+      yn: 3.1.1
+    dev: true
+    engines:
+      node: '>=10.0.0'
+    hasBin: true
+    peerDependencies:
+      typescript: '>=2.7'
+    resolution:
+      integrity: sha1-UamkUKPpWUAb2l8ASnLVS5NtN20=
+      tarball: ts-node/download/ts-node-9.1.1.tgz
+  /typescript/4.1.5:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha1-Ejo7IUqv874ykm8Njx9ucE64mnI=
+      tarball: typescript/download/typescript-4.1.5.tgz
+  /validator/12.2.0:
+    dev: false
+    engines:
+      node: '>= 0.10'
+    resolution:
+      integrity: sha1-Zg1H6WJnAz/QcAlsOxpvLbQ4Cgo=
+      tarball: validator/download/validator-12.2.0.tgz
+  /yn/3.1.1:
+    dev: true
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha1-HodAGgnXZ8HV6rJqbkwYUYLS61A=
+      tarball: yn/download/yn-3.1.1.tgz
+  /z-schema/4.2.3:
+    dependencies:
+      lodash.get: 4.4.2
+      lodash.isequal: 4.5.0
+      validator: 12.2.0
+    dev: false
+    engines:
+      node: '>=6.0.0'
+    hasBin: true
+    optionalDependencies:
+      commander: 2.20.3
+    resolution:
+      integrity: sha1-hffup+bU/lmkg0YqmPURvXj+mII=
+      tarball: z-schema/download/z-schema-4.2.3.tgz
+specifiers:
+  '@apidevtools/swagger-parser': ^10.0.2
+  '@types/node': ^14.14.31
+  chalk: ^4.1.0
+  deep-object-diff: ^1.1.0
+  openapi-types: ^7.2.3
+  prettier: ^2.2.1
+  ts-node: ^9.1.1
+  typescript: ^4.1.5
