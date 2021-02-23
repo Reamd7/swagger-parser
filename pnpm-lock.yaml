@@ -1,8 +1,12 @@
 dependencies:
   '@apidevtools/swagger-parser': 10.0.2_openapi-types@7.2.3
+  '@types/is-url': 1.2.28
   '@types/node': 14.14.31
+  '@types/node-fetch': 2.5.8
   chalk: 4.1.0
   deep-object-diff: 1.1.0
+  is-url: 1.2.4
+  node-fetch: 2.6.1
   prettier: 2.2.1
 devDependencies:
   openapi-types: 7.2.3
@@ -51,6 +55,19 @@ packages:
     resolution:
       integrity: sha1-nfA7vXxpalxYiFw0qgbaQchUN5Y=
       tarball: '@jsdevtools/ono/download/@jsdevtools/ono-7.1.3.tgz'
+  /@types/is-url/1.2.28:
+    dev: false
+    resolution:
+      integrity: sha1-kU2r1QVG2bAUKAbkLHK8fCt+B4c=
+      tarball: '@types/is-url/download/@types/is-url-1.2.28.tgz'
+  /@types/node-fetch/2.5.8:
+    dependencies:
+      '@types/node': 14.14.31
+      form-data: 3.0.1
+    dev: false
+    resolution:
+      integrity: sha1-4ZnINdI0x+sIRvZhgBLlWFRO4vs=
+      tarball: '@types/node-fetch/download/@types/node-fetch-2.5.8.tgz'
   /@types/node/14.14.31:
     dev: false
     resolution:
@@ -77,6 +94,11 @@ packages:
     resolution:
       integrity: sha1-vNZ5HqWuCXJeF+WtmIE0zUCz2RE=
       tarball: argparse/download/argparse-1.0.10.tgz
+  /asynckit/0.4.0:
+    dev: false
+    resolution:
+      integrity: sha1-x57Zf380y48robyXkLzDZkdLS3k=
+      tarball: asynckit/download/asynckit-0.4.0.tgz
   /buffer-from/1.1.1:
     dev: true
     resolution:
@@ -111,6 +133,15 @@ packages:
     resolution:
       integrity: sha1-wqCah6y95pVD3m9j+jmVyCbFNqI=
       tarball: color-name/download/color-name-1.1.4.tgz
+  /combined-stream/1.0.8:
+    dependencies:
+      delayed-stream: 1.0.0
+    dev: false
+    engines:
+      node: '>= 0.8'
+    resolution:
+      integrity: sha1-w9RaizT9cwYxoRCoolIGgrMdWn8=
+      tarball: combined-stream/download/combined-stream-1.0.8.tgz
   /commander/2.20.3:
     dev: false
     optional: true
@@ -127,6 +158,13 @@ packages:
     resolution:
       integrity: sha1-1vq/R2wu0XUfyU1cppPS7YwYvFo=
       tarball: deep-object-diff/download/deep-object-diff-1.1.0.tgz
+  /delayed-stream/1.0.0:
+    dev: false
+    engines:
+      node: '>=0.4.0'
+    resolution:
+      integrity: sha1-3zrhmayt+31ECqrgsp4icrJOxhk=
+      tarball: delayed-stream/download/delayed-stream-1.0.0.tgz
   /diff/4.0.2:
     dev: true
     engines:
@@ -142,6 +180,17 @@ packages:
     resolution:
       integrity: sha1-E7BM2z5sXRnfkatph6hpVhmwqnE=
       tarball: esprima/download/esprima-4.0.1.tgz
+  /form-data/3.0.1:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.29
+    dev: false
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha1-69U3kbeDVqma+aMA1CgsTV65dV8=
+      tarball: form-data/download/form-data-3.0.1.tgz
   /has-flag/4.0.0:
     dev: false
     engines:
@@ -149,6 +198,11 @@ packages:
     resolution:
       integrity: sha1-lEdx/ZyByBJlxNaUGGDaBrtZR5s=
       tarball: has-flag/download/has-flag-4.0.0.tgz
+  /is-url/1.2.4:
+    dev: false
+    resolution:
+      integrity: sha1-BKTfRtKMTP89c9Af8Gq+sxihqlI=
+      tarball: is-url/download/is-url-1.2.4.tgz
   /js-yaml/3.14.1:
     dependencies:
       argparse: 1.0.10
@@ -173,6 +227,29 @@ packages:
     resolution:
       integrity: sha1-LrLjfqm2fEiR9oShOUeZr0hM96I=
       tarball: make-error/download/make-error-1.3.6.tgz
+  /mime-db/1.46.0:
+    dev: false
+    engines:
+      node: '>= 0.6'
+    resolution:
+      integrity: sha1-Ymd0in95lZTePLyM3pHe80lmHO4=
+      tarball: mime-db/download/mime-db-1.46.0.tgz
+  /mime-types/2.1.29:
+    dependencies:
+      mime-db: 1.46.0
+    dev: false
+    engines:
+      node: '>= 0.6'
+    resolution:
+      integrity: sha1-HUq3faZLkfX3JInfKSNlY3VLsbI=
+      tarball: mime-types/download/mime-types-2.1.29.tgz
+  /node-fetch/2.6.1:
+    dev: false
+    engines:
+      node: 4.x || >=6.0.0
+    resolution:
+      integrity: sha1-BFvTI2Mfdu0uK1VXM5RBa2OaAFI=
+      tarball: node-fetch/download/node-fetch-2.6.1.tgz?cache=0&sync_timestamp=1599329062136&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fnode-fetch%2Fdownload%2Fnode-fetch-2.6.1.tgz
   /openapi-types/7.2.3:
     dev: true
     resolution:
@@ -271,9 +348,13 @@ packages:
       tarball: z-schema/download/z-schema-4.2.3.tgz
 specifiers:
   '@apidevtools/swagger-parser': ^10.0.2
+  '@types/is-url': ^1.2.28
   '@types/node': ^14.14.31
+  '@types/node-fetch': ^2.5.8
   chalk: ^4.1.0
   deep-object-diff: ^1.1.0
+  is-url: ^1.2.4
+  node-fetch: ^2.6.1
   openapi-types: ^7.2.3
   prettier: ^2.2.1
   ts-node: ^9.1.1
