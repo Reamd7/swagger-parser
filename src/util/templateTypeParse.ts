@@ -2,10 +2,14 @@ export const innerType = {
   List: "Array",
   Map: "Record",
 };
-
+export const outerType = {
+  Array: ["List"],
+  Map: "Record",
+};
 export interface TemplateType {
   parent: string;
   args: Array<TemplateType | string>;
+  _raw: string;
 }
 /**
  * @param {string} parent
@@ -14,11 +18,13 @@ export interface TemplateType {
  */
 export function createType(
   parent: TemplateType["parent"],
-  args: TemplateType["args"]
+  args: TemplateType["args"],
+  _raw: TemplateType['_raw']
 ) {
   return {
     parent,
     args,
+    _raw
   };
 }
 
@@ -76,7 +82,7 @@ export default function templateTypeParse(str: string) {
   });
 
   const res: [TemplateType, string[]] = [
-    createType(parent, argsStrList),
+    createType(parent, argsStrList, str),
     passTemplateType,
   ];
   return res;

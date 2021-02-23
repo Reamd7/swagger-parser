@@ -161,10 +161,10 @@ export declare namespace OpenAPIV2 {
     url: string;
   }
   interface ItemsObject {
-    type: string;
+    type: string; // "string" | "integer" | "number" | "array" | "boolean"
     format?: string;
     items?: ItemsObject;
-    collectionFormat?: string;
+    collectionFormat?: "csv" | "ssv" | "tsv" | "pipes"; // 默认是 csv
     default?: any;
     maximum?: number;
     exclusiveMaximum?: boolean;
@@ -178,7 +178,7 @@ export declare namespace OpenAPIV2 {
     uniqueItems?: boolean;
     enum?: any[];
     multipleOf?: number;
-    $ref?: string;
+    $ref?: string;      // 这是需要的。
   }
   interface XMLObject {
     [index: string]: any;
@@ -218,10 +218,12 @@ export declare namespace OpenAPIV2 {
     
     // The following properties are taken from the JSON Schema definition but their definitions were adjusted to the Swagger Specification. Their definition is the same as the one from JSON Schema, only where the original definition references the JSON Schema definition, the Schema Object definition is used instead.
     // 如果是 Array<T> | [A, B, C, D] 这里的不同
-    items?: SchemaObject | SchemaObject[]; // 按照规范阅读应该是这个
-    // items?: ItemsObject;  // 但是typescript 里面改为了ItemsObject , 和 body中的情况保持一致。
+    // items?: SchemaObject | SchemaObject[]; // 按照规范阅读应该是这个
+    items?: ItemsObject;  // 但是typescript 里面改为了ItemsObject , 和 body中的情况保持一致。我在看实际用java生成出来的代码也是这个
     properties?: {
-      [name: string]: SchemaObject;
+      [name: string]: SchemaObject & {
+        $ref?: string
+      };
     };
     allOf?: SchemaObject[];
     additionalProperties?: boolean | SchemaObject;

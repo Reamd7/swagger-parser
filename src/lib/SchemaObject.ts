@@ -1,15 +1,17 @@
 import type { OpenAPIV2 } from "../openapi";
 import noSupport from "../util/noSupport";
 import tag from "../util/tag";
+import ItemsObjectClass from "./ItemsObject";
+import ReferenceObject from "./ReferenceObject";
 
-// type JSONType =
-//   | "string"
-//   | "integer"
-//   | "number"
-//   | "object"
-//   | "array"
-//   | "boolean"
-//   | "null";
+type JSONType =
+  | "string"
+  | "integer"
+  | "number"
+  | "object"
+  | "array"
+  | "boolean"
+  | "null";
 
 interface SchemaObject_MetaPart {
   title?: string;
@@ -19,13 +21,14 @@ interface SchemaObject_MetaPart {
 
   allOf?: OpenAPIV2.SchemaObject[]; // 必须对其中所有定义都有效
   enum?: any[]; // 联合类型 A | B | C // TODO 支持
+  $ref?: string;
 }
 
 export type StaticSchemaObject = (
-  | { type?: "null" }
+  | { type: "null" }
   | {
       // 整数类型
-      type?: "interger";
+      type: "interger";
       format?: "int32" | "int64";
 
       // Validation keywords sorted by instance types
@@ -41,7 +44,7 @@ export type StaticSchemaObject = (
     }
   | {
       // 浮点数
-      type?: "number";
+      type: "number";
       format?: "float" | "double";
 
       // Validation keywords sorted by instance types
@@ -56,7 +59,7 @@ export type StaticSchemaObject = (
       exclusiveMinimum?: boolean;
     }
   | {
-      type?: "string";
+      type: "string";
       format?: "byte" | "binary" | "date" | "password" | "date-time";
 
       maxLength?: number; // 字符串最大长度
@@ -64,15 +67,16 @@ export type StaticSchemaObject = (
       pattern?: string; // 字符串匹配正则表达式
     }
   | {
-      type?: "array";
+      type: "array";
       // type array 校验
       maxItems?: number; // 数组最大items数
       minItems?: number; // 数组最小items数
       uniqueItems?: boolean; // 数组中每个items都必须是唯一的
-      items?: OpenAPIV2.SchemaObject | OpenAPIV2.SchemaObject[];
+      // items?: OpenAPIV2.SchemaObject | OpenAPIV2.SchemaObject[];
+      items?: OpenAPIV2.ItemsObject;
     }
   | {
-      type?: "object";
+      type: "object";
       // type object 校验
       maxProperties?: number; // object最大props数
       minProperties?: number; // object最小props数
@@ -83,10 +87,12 @@ export type StaticSchemaObject = (
       additionalProperties?: boolean | OpenAPIV2.SchemaObject; // 是否支持 [index: string] : XXX类型；
     }
   | {
-      type?: "boolean";
+      type: "boolean";
     }
 ) &
   SchemaObject_MetaPart;
+
+// export type ty<T> = T extends JSONType ? never : T | void;
 
 export interface SchemaObjectClassReturnType {
   dataType: string;
@@ -227,7 +233,9 @@ export default class SchemaObjectClass {
 
   typescript(): SchemaObjectClassReturnType {
     const data = this.validate();
-    let dataType = "unknown";
+    // 如果不是支持的类型就原样输出
+    // 目的是支持泛型的能力
+    let dataType = data.type || "unknown";
     let comment = `
 /**
 ${tag` * @title ${data.title}\n`}\
@@ -235,90 +243,97 @@ ${tag` * @description ${data.description}\n`}\
 ${tag` * @readOnly ${data.readOnly}\n`}\
  */
     `.trim();
-
-    switch (data.type) {
-      case "null":
-        dataType = "null";
-        break;
-      case "string":
-        if (data.enum) {
-          console.warn(`enum is ${data.enum}`);
-          dataType = data.enum.map((v) => `"${v}"`).join(" | ");
-        } else if (data.format) {
-          dataType = data.format.replace(/\-/g, "");
-        } else {
-          dataType = "string";
-        }
-        // 先不进行string
-        break;
-      case "number":
-      case "interger":
-        if (data.enum) {
-          console.warn(`enum is ${data.enum}`);
-          dataType = data.enum.join(" | ");
-        } else if (data.format) {
-          dataType = data.format;
-        } else {
-          dataType = "number";
-        }
-        break;
-      case "boolean":
-        dataType = "boolean";
-        break;
-      case "array":
-        if (data.items) {
-          if (Array.isArray(data.items)) {
-            // [ A, B, C, D ]
-            let subType = data.items.map((v) => {
-              return new SchemaObjectClass(v).typescript();
-            });
-            dataType = subType.map((v) => v.dataType).join(", ");
+    if (data.$ref !== undefined) {
+      dataType = ReferenceObject({
+        $ref: data.$ref,
+      }); // 从 Ref 中 取出 可行的key
+    } else {
+      switch (data.type) {
+        case "null":
+          dataType = "null";
+          break;
+        case "string":
+          if (data.enum) {
+            console.warn(`enum is ${data.enum}`);
+            dataType = data.enum.map((v) => `"${v}"`).join(" | ");
+          } else if (data.format) {
+            dataType = data.format.replace(/\-/g, "");
           } else {
-            let subType = new SchemaObjectClass(data.items).typescript();
-            dataType = `Array<${subType.dataType}>`;
+            dataType = "string";
           }
-        } else {
-          dataType = "Array<unknown>";
-        }
-        break;
-      case "object":
-        let additionalType = "";
+          // 先不进行string
+          break;
+        case "number":
+        case "interger":
+          if (data.enum) {
+            console.warn(`enum is ${data.enum}`);
+            dataType = data.enum.join(" | ");
+          } else if (data.format) {
+            dataType = data.format;
+          } else {
+            dataType = "number";
+          }
+          break;
+        case "boolean":
+          dataType = "boolean";
+          break;
+        case "array":
+          if (data.items) {
+            if (Array.isArray(data.items)) {
+              // [ A, B, C, D ]
+              let subType = data.items.map((v) => {
+                return new SchemaObjectClass(v).typescript();
+              });
+              dataType = subType.map((v) => v.dataType).join(", ");
+            } else {
+              let subType = new ItemsObjectClass(data.items).typescript();
+              dataType = `Array<${subType.dataType}>`;
+            }
+          } else {
+            dataType = "Array<unknown>";
+          }
+          break;
+        case "object":
+          let additionalType = "";
 
-        if (data.additionalProperties === true) {
-          additionalType = `& { [index: string] : any} `;
-        } else if (typeof data.additionalProperties === "object") {
-          const isReadOnly = data.additionalProperties.readOnly === true;
-          const subType = new SchemaObjectClass(
-            data.additionalProperties
-          ).typescript();
-          additionalType = `& {
+          if (data.additionalProperties === true) {
+            additionalType = `& { [index: string] : any} `;
+          } else if (typeof data.additionalProperties === "object") {
+            const isReadOnly = data.additionalProperties.readOnly === true;
+            const subType = new SchemaObjectClass(
+              data.additionalProperties
+            ).typescript();
+            additionalType = `& {
             ${subType.comment}
             ${isReadOnly ? "readonly " : ""}[index: string]: ${subType.dataType}
           } `;
-        }
+          }
 
-        const required = data.required || [];
-        if (data.properties) {
-          const subType = Object.keys(data.properties).map((propsName) => {
-            const isRequired = required.indexOf(propsName) > -1 ? "" : "?";
-            const isReadOnly = data.properties[propsName].readOnly
-              ? "readonly "
-              : "";
-            const subType = new SchemaObjectClass(
-              data.properties[propsName]
-            ).typescript();
-            return {
-              dataType: `
+          const required = data.required || [];
+          if (data.properties) {
+            const subType = Object.keys(data.properties).map((propsName) => {
+              const isRequired = required.indexOf(propsName) > -1 ? "" : "?";
+              const isReadOnly = data.properties[propsName].readOnly
+                ? "readonly "
+                : "";
+              const subType = new SchemaObjectClass(
+                data.properties[propsName]
+              ).typescript();
+              return {
+                dataType: `
                 ${subType.comment}
                 ${isReadOnly}${propsName}${isRequired}: ${subType.dataType}
               `.trim(),
-            };
-          });
-          dataType =
-            `{ ${subType.map((v) => v.dataType).join("\n")} }` + additionalType;
-        } else {
-          dataType = `Record<string, any>`;
-        }
+              };
+            });
+            dataType =
+              `{ ${subType.map((v) => v.dataType).join("\n")} }` +
+              additionalType;
+          } else {
+            dataType = `Record<string,object>`;
+          }
+          break;
+      }
     }
 
     return {
@@ -328,4 +343,17 @@ ${tag` * @readOnly ${data.readOnly}\n`}\
   }
 
   javascript() {}
+}
+
+export function rewriteSchemaObjectType(
+  type: string,
+  obj: OpenAPIV2.SchemaObject
+) {
+  return {
+    type,
+    // comment
+    title: obj.title,
+    description: obj.description,
+    readOnly: obj.readOnly,
+  };
 }
