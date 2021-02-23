@@ -1,7 +1,7 @@
 import { OpenAPIV2 } from "../openapi";
 import tag from "../util/tag";
 import SchemaObjectClass, { rewriteSchemaObjectType } from "./SchemaObject";
-import { updatedDiff } from "deep-object-diff";
+import { addedDiff } from "deep-object-diff";
 import templateTypeParse, { templateTypeEach } from "../util/templateTypeParse";
 
 const GenericValueList = [
@@ -59,59 +59,62 @@ export default class DefinitionsObjectClass {
               ) {
                 const ParentData = this.val[v.parent]; // 泛型的父类型
                 const GenericData = this.val[key]; // 泛型的具体实现类型
-                const diffData = updatedDiff(ParentData, GenericData) as any;
+                const diffData = addedDiff(ParentData, GenericData) as any;
 
                 if (v.args.length <= GenericValueList.length) {
                   // 具体类型 => 泛型标签
                   const GenericMap = v.args.reduce((res, val, index) => {
                     if (typeof val === "string") {
-                      GenericMap[val] = GenericValueList[index];
+                      res[val] = GenericValueList[index];
                     } else {
-                      GenericMap[val._raw] = GenericValueList[index];
+                      res[val._raw] = GenericValueList[index];
                     }
                     return res;
                   }, {} as Record<string, string>);
 
                   const GenericValueSubList: string[] = [];
-                  Object.keys(diffData.properties).forEach((propsName) => {
-                    // TODO 这里的实现有点问题，应该结合泛型来写的。
-                    // ParentData.properties[propsName].type = GenericMap[propsName];
-                    const diffEl = diffData.properties[
-                      propsName
-                    ] as OpenAPIV2.DefinitionsObject[string]["properties"][string];
-                    // TODO 这里是针对JAVA的生成出来的代码处理的。
-
-                    // 进行所有的 Schema 解析为 具体类型的表述，然后替换掉« » Array => List ( 希望匹配到 GenericMap 的 key )
-                    const diffElSub = new SchemaObjectClass(diffEl)
-                      .typescript()
-                      .dataType.replace(/Array</g, "List«")
-                      .replace(/</g, "«")
-                      .replace(/>/g, "»");
-
-                    let genType = GenericMap[diffElSub]; // 查到 泛型标签
-                    if (genType) {
-                      // 将原有类型替换成为泛型标签
-                      ParentData.properties[
+                  
+                  if (diffData.properties) {
+                    Object.keys(diffData.properties).forEach((propsName) => {
+                      // TODO 这里的实现有点问题，应该结合泛型来写的。
+                      // ParentData.properties[propsName].type = GenericMap[propsName];
+                      const diffEl = diffData.properties[
                         propsName
-                      ] = rewriteSchemaObjectType(
-                        genType,
-                        ParentData.properties[propsName] // 原有obj
-                      );
-                      // 将 泛型List，按顺序注入泛型标签，最后生成 title
-                      GenericValueSubList.push(genType);
-                      delete GenericMap[diffElSub];
-                    } else {
-                      console.error("泛型 不匹配 ");
-                    }
-                  });
-                  // 完成之后，删掉原有的父类型
-                  this.passTemplateType.push(v.parent);
-                  delete this.val[v.parent]; // 实现完成了泛型就删掉原有的。。。
-                  this.val[
-                    `${v.parent}<${GenericValueSubList.map(
-                      (v) => `${v} = any`
-                    ).join(",")}>`
-                  ] = ParentData; // 注入泛型类型便于进行生成。。。
+                      ] as OpenAPIV2.DefinitionsObject[string]["properties"][string];
+                      // TODO 这里是针对JAVA的生成出来的代码处理的。
+
+                      // 进行所有的 Schema 解析为 具体类型的表述，然后替换掉« » Array => List ( 希望匹配到 GenericMap 的 key )
+                      const diffElSub = new SchemaObjectClass(diffEl)
+                        .typescript()
+                        .dataType.replace(/Array</g, "List«")
+                        .replace(/</g, "«")
+                        .replace(/>/g, "»");
+
+                      let genType = GenericMap[diffElSub]; // 查到 泛型标签
+                      if (genType) {
+                        // 将原有类型替换成为泛型标签
+                        ParentData.properties[
+                          propsName
+                        ] = rewriteSchemaObjectType(
+                          genType,
+                          ParentData.properties[propsName] // 原有obj
+                        );
+                        // 将 泛型List，按顺序注入泛型标签，最后生成 title
+                        GenericValueSubList.push(genType);
+                        delete GenericMap[diffElSub];
+                      } else {
+                        console.error("泛型 不匹配 ");
+                      }
+                    });
+                    // 完成之后，删掉原有的父类型
+                    this.passTemplateType.push(v.parent);
+                    delete this.val[v.parent]; // 实现完成了泛型就删掉原有的。。。
+                    this.val[
+                      `${v.parent}<${GenericValueSubList.map(
+                        (v) => `${v} = any`
+                      ).join(",")}>`
+                    ] = ParentData; // 注入泛型类型便于进行生成。。。
+                  }
                 } else {
                   throw Error(`${key} 泛型数量过长`);
                 }
@@ -165,8 +168,8 @@ export default class DefinitionsObjectClass {
 
     return {
       dataType,
-      changeTemplateType
-    }
+      changeTemplateType,
+    };
   }
 
   javascript() {}

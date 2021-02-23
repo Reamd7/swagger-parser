@@ -3,6 +3,7 @@ dependencies:
   '@types/is-url': 1.2.28
   '@types/node': 14.14.31
   '@types/node-fetch': 2.5.8
+  '@types/prettier': 2.2.1
   chalk: 4.1.0
   deep-object-diff: 1.1.0
   is-url: 1.2.4
@@ -73,6 +74,11 @@ packages:
     resolution:
       integrity: sha1-cihr0z0TeqDRUtR+x8F2JWPTQFU=
       tarball: '@types/node/download/@types/node-14.14.31.tgz'
+  /@types/prettier/2.2.1:
+    dev: false
+    resolution:
+      integrity: sha1-N04xZF1Yyxigez7Njp3t5N6yzM0=
+      tarball: '@types/prettier/download/@types/prettier-2.2.1.tgz'
   /ansi-styles/4.3.0:
     dependencies:
       color-convert: 2.0.1
@@ -351,6 +357,7 @@ specifiers:
   '@types/is-url': ^1.2.28
   '@types/node': ^14.14.31
   '@types/node-fetch': ^2.5.8
+  '@types/prettier': ^2.2.1
   chalk: ^4.1.0
   deep-object-diff: ^1.1.0
   is-url: ^1.2.4

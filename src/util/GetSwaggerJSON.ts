@@ -1,6 +1,6 @@
 import fs from "fs";
 import fetch from "node-fetch";
-import isURL from "is-url";
+import isURL = require("is-url");
 
 export default function GetSwaggerJSON(path: string) {
   return new Promise<Buffer>((resolve, rejects) => {

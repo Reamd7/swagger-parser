@@ -18,7 +18,7 @@ export type StaticItemsObject = ItemsObject_MetaPart &
   (
     | {
         // 整数类型
-        type: "interger";
+        type: "integer";
         format?: "int32" | "int64";
 
         // Validation keywords sorted by instance types
@@ -117,7 +117,7 @@ export default class ItemsObjectClass {
       }
     }
 
-    if (val.type !== "interger" && val.type !== "number") {
+    if (val.type !== "integer" && val.type !== "number") {
       noSupport(
         val.multipleOf,
         "不支持 ItemsObject 不为数字类型 使用 ItemsObject.multipleOf"
@@ -201,7 +201,7 @@ export default class ItemsObjectClass {
           // 先不进行string
           break;
         case "number":
-        case "interger":
+        case "integer":
           if (data.enum) {
             console.warn(`enum is ${data.enum}`);
             dataType = data.enum.join(" | ");

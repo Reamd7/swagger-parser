@@ -28,7 +28,7 @@ export type StaticSchemaObject = (
   | { type: "null" }
   | {
       // 整数类型
-      type: "interger";
+      type: "integer";
       format?: "int32" | "int64";
 
       // Validation keywords sorted by instance types
@@ -148,7 +148,7 @@ export default class SchemaObjectClass {
     }
 
     noSupport(val.allOf, "暂时不支持 SchemaObject.allOf");
-    if (val.type !== "interger" && val.type !== "number") {
+    if (val.type !== "integer" && val.type !== "number") {
       noSupport(
         val.multipleOf,
         "不支持 SchemaObject 不为数字类型 使用 SchemaObject.multipleOf"
@@ -224,9 +224,9 @@ export default class SchemaObjectClass {
         "不支持 SchemaObject 不为 object 类型 使用 SchemaObject.additionalProperties"
       );
     }
-    if (val.type === undefined) {
-      noSupport(!val.enum, "SchemaObject 不定义 type 类型 必须定义enum");
-    }
+    // if (val.type === undefined) {
+    //   noSupport(!val.enum, "SchemaObject 不定义 type 类型 必须定义enum");
+    // }
 
     return val as StaticSchemaObject;
   }
@@ -264,7 +264,7 @@ ${tag` * @readOnly ${data.readOnly}\n`}\
           // 先不进行string
           break;
         case "number":
-        case "interger":
+        case "integer":
           if (data.enum) {
             console.warn(`enum is ${data.enum}`);
             dataType = data.enum.join(" | ");
