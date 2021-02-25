@@ -281,6 +281,11 @@ export type SchemaObject = {
 ) &
   XRecord;
 // -----------------------------------------------
+export type TagObject = {
+  name: string;
+  description?: string;
+  externalDocs?: ExternalDocumentationObject;
+} & XRecord;
 
 export type DefinitionsObject = Record<string, SchemaObject>
 
@@ -310,4 +315,6 @@ export interface Document {
 
   definitions?: DefinitionsObject;
   externalDocs?: ExternalDocumentationObject;
+
+  tags?: TagObject[]
 }
