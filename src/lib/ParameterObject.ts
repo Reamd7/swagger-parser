@@ -1,79 +1,40 @@
-import { OpenAPIV2 } from "../openapi";
-import noSupport from "../util/noSupport";
+import type { ParameterObject } from "../base";
 import tag from "../util/tag";
-type TypeIn = "query" | "header" | "path" | "formData" | "body";
-
-type Parameter = InBodyParameterObject | GeneralParameterObject;
-interface InBodyParameterObject extends OpenAPIV2.ParameterObject {
-  schema: OpenAPIV2.Schema;
-  in: "body";
-}
-interface GeneralParameterObject
-  extends OpenAPIV2.ParameterObject,
-    OpenAPIV2.ItemsObject {
-  allowEmptyValue?: boolean;
-  in: "query" | "header" | "path" | "formData";
-}
-
-
+import ItemsObjectClass from "./ItemsObject";
+import SchemaObjectClass from "./SchemaObject";
 
 export default class ParameterClass {
-  private readonly val: OpenAPIV2.Parameter;
+  readonly _raw: ParameterObject;
   private get requiredString() {
-    return this.val.required ? "?" : ""
+    return this._raw.required ? "?" : "";
   }
-  constructor(val: OpenAPIV2.Parameter) {
-    this.val = val;
-  }
-
-  validate() {
-    const data = this.val;
-    if (data.in === "path") {
-      noSupport(
-        data.required,
-        `Parameter 参数对象 in: path => required 必须是 true `
-      );
-    }
-
-    if (data.in !== "body") {
-      if (data.type === "file") {
-        // If type is "file", the consumes MUST be either "multipart/form-data", " application/x-www-form-urlencoded" or both and the parameter MUST be in "formData".
-        noSupport(
-          data.in === "formData",
-          "data.type === file 仅在 formdata 可用"
-        );
-      }
-
-      if (data.allowEmptyValue) {
-        noSupport(
-          data.in === "query" || data.in === "formData",
-          "data.allowEmptyValue 仅在 query / formdata 可用"
-        );
-      }
-
-      if (data.collectionFormat === "multi") {
-        noSupport(
-          data.in === "query" || data.in === "formData",
-          "data.collectionFormat === multi 仅在 query / formdata 可用"
-        );
-      }
-    }
-
-    return data
+  constructor(val: ParameterObject) {
+    this._raw = val;
   }
 
   typescript() {
-    const data = this.validate();
-    let dateType = "";
+    const data = this._raw;
+    const comment = tag`\n/** ${data.description} */`;
+    let dataType = "";
     if (data.in === "body") {
-      dateType += `
-      ${tag`/** ${data.description} */`}
-      ${data.name}${this.requiredString}: ${data.schema}
-      `
+      const subType = new SchemaObjectClass(data.schema).typescript();
+      dataType += `${comment + subType.comment}
+      ${data.name}${this.requiredString}: ${subType.dataType}`;
     } else {
-
+      if (data.type === "file") {
+        dataType += `${comment}
+        ${data.name}${this.requiredString}: File`;
+      } else {
+        // TODO 实际上这里是不合适的，因为 collectionFormat?: "csv" | "ssv" | "tsv" | "pipes" 类型不匹配，在暂时不用这个的情况下，可以临时用
+        const subType = new ItemsObjectClass(data as any).typescript();
+        dataType += `${comment + subType.comment}
+        ${data.name}${this.requiredString}: ${subType.dataType}`;
+      }
     }
-    
+
+    return {
+      dataType
+    }
   }
 
   javascript() {}

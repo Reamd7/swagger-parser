@@ -1,3 +1,10 @@
+type IntDataFormat = "int32" | "int64";
+type numberDataFormat = "float" | "double";
+type StringDataFormat = "byte" | "binary" | "date" | "password" | "date-time";
+type BasecollectionFormat = "csv" | "ssv" | "tsv" | "pipes";
+type queryOrformDataCollectionFormat = BasecollectionFormat | "multi";
+type NullObject = {};
+
 type XRecord = {};
 
 export type ReferenceObject = {
@@ -114,12 +121,14 @@ export type ItemsObject = {
    * // 联合类型 A | B | C // TODO 支持
    */
   enum?: any[];
+
+  default?: any;
 } & ReferenceObject &
   (
     | {
         // 整数类型
         type?: "integer";
-        format?: "int32" | "int64";
+        format?: IntDataFormat;
 
         // Validation keywords sorted by instance types
         multipleOf?: number; // value 是 multipleOf 的倍数
@@ -135,7 +144,7 @@ export type ItemsObject = {
     | {
         // 浮点数
         type?: "number";
-        format?: "float" | "double";
+        format?: numberDataFormat;
 
         // Validation keywords sorted by instance types
         multipleOf?: number; // value 是 multipleOf 的倍数
@@ -150,7 +159,7 @@ export type ItemsObject = {
       }
     | {
         type?: "string";
-        format?: "byte" | "binary" | "date" | "password" | "date-time";
+        format?: StringDataFormat;
 
         maxLength?: number; // 字符串最大长度
         minLength?: number; // 字符串最小长度
@@ -218,7 +227,7 @@ export type SchemaObject = {
   | {
       // 整数类型
       type?: "integer";
-      format?: "int32" | "int64";
+      format?: IntDataFormat;
 
       // Validation keywords sorted by instance types
       multipleOf?: number; // value 是 multipleOf 的倍数
@@ -234,7 +243,7 @@ export type SchemaObject = {
   | {
       // 浮点数
       type?: "number";
-      format?: "float" | "double";
+      format?: numberDataFormat;
 
       // Validation keywords sorted by instance types
       multipleOf?: number; // value 是 multipleOf 的倍数
@@ -249,7 +258,7 @@ export type SchemaObject = {
     }
   | {
       type?: "string";
-      format?: "byte" | "binary" | "date" | "password" | "date-time";
+      format?: StringDataFormat;
 
       maxLength?: number; // 字符串最大长度
       minLength?: number; // 字符串最小长度
@@ -263,6 +272,7 @@ export type SchemaObject = {
       uniqueItems?: boolean; // 数组中每个items都必须是唯一的
       // items?: OpenAPIV2.SchemaObject | OpenAPIV2.SchemaObject[];
       items?: ItemsObject;
+      collectionFormat?: BasecollectionFormat;
     }
   | {
       type?: "object";
@@ -280,6 +290,145 @@ export type SchemaObject = {
     }
 ) &
   XRecord;
+
+// --------------------------------------------------------
+type ParameterItemObject<
+  T extends "query" | "header" | "path" | "formData" | "body"
+> = ParameterMetaObject<T> &
+  (
+    | {
+        // 整数类型
+        type?: "integer";
+        format?: IntDataFormat;
+
+        // Validation keywords sorted by instance types
+        multipleOf?: number; // value 是 multipleOf 的倍数
+        // x ≥ minimum
+        // x > exclusiveMinimum
+        // x ≤ maximum
+        // x < exclusiveMaximum
+        maximum?: number;
+        exclusiveMaximum?: boolean;
+        minimum?: number;
+        exclusiveMinimum?: boolean;
+      }
+    | {
+        // 浮点数
+        type?: "number";
+        format?: numberDataFormat;
+
+        // Validation keywords sorted by instance types
+        multipleOf?: number; // value 是 multipleOf 的倍数
+        // x ≥ minimum
+        // x > exclusiveMinimum
+        // x ≤ maximum
+        // x < exclusiveMaximum
+        maximum?: number;
+        exclusiveMaximum?: boolean;
+        minimum?: number;
+        exclusiveMinimum?: boolean;
+      }
+    | {
+        type?: "string";
+        format?: StringDataFormat;
+
+        maxLength?: number; // 字符串最大长度
+        minLength?: number; // 字符串最小长度
+        pattern?: string; // 字符串匹配正则表达式
+      }
+    | {
+        type?: "array";
+        // type array 校验
+        maxItems?: number; // 数组最大items数
+        minItems?: number; // 数组最小items数
+        uniqueItems?: boolean; // 数组中每个items都必须是唯一的
+        // items?: OpenAPIV2.ItemsObject | OpenAPIV2.ItemsObject[];
+        items?: ItemsObject;
+        /**
+         * 	Determines the format of the array if type array is used. Possible values are:
+         * csv - comma separated values foo,bar.
+         * ssv - space separated values foo bar.
+         * tsv - tab separated values foo\tbar.
+         * pipes - pipe separated values foo|bar.
+         * multi - corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".
+         * Default value is csv.
+         */
+        collectionFormat?: T extends "query" | "formData"
+          ? queryOrformDataCollectionFormat
+          : BasecollectionFormat;
+      }
+    | {
+        type?: "boolean";
+      }
+    | {
+        type?: T extends "formData" ? "file" : never;
+      }
+  );
+type ParameterMetaObject<
+  T extends "query" | "header" | "path" | "formData" | "body"
+> = {
+  /**
+   * Required. The name of the parameter. Parameter names are case sensitive.
+   * If in is "path", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.
+   * For all other cases, the name corresponds to the parameter name used based on the in property.
+   */
+  name: string;
+  /**
+   * A brief description of the parameter. This could contain examples of use. GFM syntax can be used for rich text representation.
+   */
+  description?: string;
+  /**
+   * Determines whether this parameter is mandatory. If the parameter is in "path", this property is required and its value MUST be true. Otherwise, the property MAY be included and its default value is false.
+   */
+  required?: boolean;
+  // --------------------------------------------
+  default?: any;
+  /**
+   * // 联合类型 A | B | C // TODO 支持
+   */
+  enum?: any[];
+  allowEmptyValue?: T extends "query" | "formData" ? boolean : never;
+};
+export type ParameterObject = XRecord &
+  [
+    {
+      in: "body";
+      /**
+       * Required. The schema defining the type used for the body parameter.
+       */
+      schema: SchemaObject;
+    } & ParameterMetaObject<"body"> &
+      ParameterItemObject<"body">,
+    {
+      /**
+       * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
+       */
+      in: "path";
+      required: true;
+    } & ParameterMetaObject<"path"> &
+      ParameterItemObject<"path">,
+    {
+      /**
+       * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
+       */
+      in: "path";
+      required: true;
+    } & ParameterMetaObject<"path"> &
+      ParameterItemObject<"path">,
+    {
+      in: "query";
+    } & ParameterMetaObject<"query"> &
+      ParameterItemObject<"query">,
+    {
+      in: "formData";
+    } & ParameterMetaObject<"formData"> &
+      ParameterItemObject<"formData">,
+    {
+      in: "header";
+    } & ParameterMetaObject<"header"> &
+      ParameterItemObject<"header">
+  ][number];
+
 // -----------------------------------------------
 export type TagObject = {
   name: string;
@@ -287,7 +436,7 @@ export type TagObject = {
   externalDocs?: ExternalDocumentationObject;
 } & XRecord;
 
-export type DefinitionsObject = Record<string, SchemaObject>
+export type DefinitionsObject = Record<string, SchemaObject>;
 
 export interface Document {
   /**
@@ -316,5 +465,5 @@ export interface Document {
   definitions?: DefinitionsObject;
   externalDocs?: ExternalDocumentationObject;
 
-  tags?: TagObject[]
+  tags?: TagObject[];
 }

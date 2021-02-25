@@ -234,13 +234,14 @@ export default class SchemaObjectClass {
     // 如果不是支持的类型就原样输出
     // 目的是支持泛型的能力
     let dataType = data.type || "unknown";
-    let comment = `
-/**
-${tag` * @title ${data.title}\n`}\
-${tag` * @description ${data.description}\n`}\
-${tag` * @readOnly ${data.readOnly}\n`}\
- */
-    `.trim();
+    let comment =
+      data.title || data.description || data.readOnly !== undefined
+        ? `/**
+${tag`\n * @title ${data.title}`}\
+${tag`\n * @description ${data.description}`}\
+${tag`\n * @readOnly ${data.readOnly}`}\
+ */`.trim()
+        : "";
     if (data.$ref !== undefined) {
       dataType = ReferenceObject({
         $ref: data.$ref,
