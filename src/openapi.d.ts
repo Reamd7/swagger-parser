@@ -119,12 +119,43 @@ export declare namespace OpenAPIV2 {
   }
   type Parameters = (ReferenceObject | Parameter)[];
   type Parameter = InBodyParameterObject | GeneralParameterObject;
+  type ParameterObject = {
+    name: string;
+    // in: string;
+    // in: "query" | "header" | "path" | "formData" | "body";
+    description?: string;
+    required?: boolean;   // when in === path, it must be true
+    // [index: string]: any; 
+  }
   interface InBodyParameterObject extends ParameterObject {
     schema: Schema;
+    in: "body"
   }
-  interface GeneralParameterObject extends ParameterObject, ItemsObject {
+  interface GeneralParameterObject extends ParameterObject {
     allowEmptyValue?: boolean;
+    in: "query" | "header" | "path" | "formData";
+
+    type: string; // "string" | "integer" | "number" | "array" | "boolean"
+    format?: string;
+    items?: ItemsObject;
+    collectionFormat?: "csv" | "ssv" | "tsv" | "pipes" | "multi"; // 默认是 csv
+    default?: any;
+    maximum?: number;
+    exclusiveMaximum?: boolean;
+    minimum?: number;
+    exclusiveMinimum?: boolean;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
+    maxItems?: number;
+    minItems?: number;
+    uniqueItems?: boolean;
+    enum?: any[];
+    multipleOf?: number;
+
+    // $ref?: string
   }
+  
   interface PathItemObject<T extends {} = {}> {
     $ref?: string;
     get?: OperationObject<T>;
@@ -141,15 +172,9 @@ export declare namespace OpenAPIV2 {
     [index: string]: PathItemObject<T> | any;
   }
   interface ParametersDefinitionsObject {
-    [index: string]: ParameterObject;
+    [index: string]: Parameter;
   }
-  interface ParameterObject {
-    name: string;
-    in: string;
-    description?: string;
-    required?: boolean;
-    [index: string]: any;
-  }
+
   type MimeTypes = string[];
   interface DefinitionsObject {
     [index: string]: SchemaObject;
@@ -160,7 +185,7 @@ export declare namespace OpenAPIV2 {
     description?: string;
     url: string;
   }
-  interface ItemsObject {
+  type ItemsObject = {
     type: string; // "string" | "integer" | "number" | "array" | "boolean"
     format?: string;
     items?: ItemsObject;
@@ -178,8 +203,8 @@ export declare namespace OpenAPIV2 {
     uniqueItems?: boolean;
     enum?: any[];
     multipleOf?: number;
-    $ref?: string;      // 这是需要的。
-  }
+  } & Partial<ReferenceObject>
+
   interface XMLObject {
     [index: string]: any;
     name?: string;
@@ -218,12 +243,10 @@ export declare namespace OpenAPIV2 {
     
     // The following properties are taken from the JSON Schema definition but their definitions were adjusted to the Swagger Specification. Their definition is the same as the one from JSON Schema, only where the original definition references the JSON Schema definition, the Schema Object definition is used instead.
     // 如果是 Array<T> | [A, B, C, D] 这里的不同
-    // items?: SchemaObject | SchemaObject[]; // 按照规范阅读应该是这个
-    items?: ItemsObject;  // 但是typescript 里面改为了ItemsObject , 和 body中的情况保持一致。我在看实际用java生成出来的代码也是这个
+    // items?: SchemaObject | SchemaObject[]; // 按照规范阅读应该是这个, 因为规范支持 tuple 类型
+    items?: ItemsObject;  // 但是typescript 里面改为了ItemsObject , 和 body中的情况保持一致。我在看实际用java生成出来的代码也是这个，也就是说不支持object类型，支持带有 $ref
     properties?: {
-      [name: string]: SchemaObject & {
-        $ref?: string
-      };
+      [name: string]: SchemaObject & Partial<ReferenceObject>;
     };
     allOf?: SchemaObject[];
     additionalProperties?: boolean | SchemaObject;

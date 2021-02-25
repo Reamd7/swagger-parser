@@ -1,6 +1,6 @@
-import { OpenAPIV2 } from "../openapi";
-import tag from "../util/tag";
-export function ContactObject(obj?: OpenAPIV2.ContactObject) {
+import type { ContactObject } from "../../base";
+import tag from "../../util/tag";
+export function ContactObject(obj?: ContactObject) {
   if (
     obj !== undefined &&
     (obj.email !== undefined || obj.url !== undefined || obj.name !== undefined)

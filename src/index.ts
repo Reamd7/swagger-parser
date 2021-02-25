@@ -2,7 +2,7 @@ import "./console";
 import fs = require("fs");
 import DefinitionsObjectClass from "./lib/DefinitionsObject";
 import GetSwaggerJSON from "./util/GetSwaggerJSON";
-import { OpenAPIV2 } from "./openapi";
+import { Document } from "./base";
 import prettier = require("prettier");
 
 const baseInfo = `
@@ -18,7 +18,7 @@ type password = string;
 `;
 
 GetSwaggerJSON("http://localhost:8008/api/v2/api-docs").then((buf) => {
-  const data = JSON.parse(buf.toString()) as OpenAPIV2.Document;
+  const data = JSON.parse(buf.toString()) as Document;
 
   fs.writeFileSync(
     "./dist/out.ts",
