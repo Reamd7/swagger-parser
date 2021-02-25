@@ -1,4 +1,4 @@
-import type { SchemaObject } from "../base";
+import type { Schema, SchemaObject } from "../base";
 // import noSupport from "../util/noSupport";
 import tag from "../util/tag";
 import ItemsObjectClass from "./ItemsObject";
@@ -102,7 +102,7 @@ export interface SchemaObjectClassReturnType {
  * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject
  */
 export default class SchemaObjectClass {
-  private readonly val: SchemaObject;
+  protected readonly val: SchemaObject;
   static Format2Type = {
     int32: "integer",
     int64: "integer",
@@ -236,105 +236,101 @@ export default class SchemaObjectClass {
     let dataType = data.type || "unknown";
     let comment =
       data.title || data.description || data.readOnly !== undefined
-        ? `/**
-${tag`\n * @title ${data.title}`}\
-${tag`\n * @description ${data.description}`}\
-${tag`\n * @readOnly ${data.readOnly}`}\
+        ? tag`/**
+${[
+  tag`* @title ${data.title}`,
+  tag`* @description ${data.description}`,
+  tag`* @readOnly ${data.readOnly}`,
+]
+  .filter(Boolean)
+  .join("\n")}
  */`.trim()
         : "";
-    if (data.$ref !== undefined) {
-      dataType = ReferenceObject({
-        $ref: data.$ref,
-      }); // 从 Ref 中 取出 可行的key
-    } else {
-      switch (data.type) {
-        case "null":
-          dataType = "null";
-          break;
-        case "string":
-          if (data.enum) {
-            console.warn(`enum is ${data.enum}`);
-            dataType = data.enum.map((v) => `"${v}"`).join(" | ");
-          } else if (data.format) {
-            dataType = data.format.replace(/\-/g, "");
-          } else {
-            dataType = "string";
-          }
-          // 先不进行string
-          break;
-        case "number":
-        case "integer":
-          if (data.enum) {
-            console.warn(`enum is ${data.enum}`);
-            dataType = data.enum.join(" | ");
-          } else if (data.format) {
-            dataType = data.format;
-          } else {
-            dataType = "number";
-          }
-          break;
-        case "boolean":
-          dataType = "boolean";
-          break;
-        case "array":
-          if (data.items) {
-            // if (Array.isArray(data.items)) {
-            //   // [ A, B, C, D ]
-            //   let subType = data.items.map((v) => {
-            //     return new SchemaObjectClass(v).typescript();
-            //   });
-            //   dataType = subType.map((v) => v.dataType).join(", ");
-            // } else {
-            let subType = new ItemsObjectClass(data.items).typescript();
-            dataType = `Array<${subType.dataType}>`;
-            // }
-          } else {
-            dataType = "Array<unknown>";
-          }
-          break;
-        case "object":
-          let additionalType = "";
+    switch (data.type) {
+      case "null":
+        dataType = "null";
+        break;
+      case "string":
+        if (data.enum) {
+          console.warn(`enum is ${data.enum}`);
+          dataType = data.enum.map((v) => `"${v}"`).join(" | ");
+        } else if (data.format) {
+          dataType = data.format.replace(/\-/g, "");
+        } else {
+          dataType = "string";
+        }
+        // 先不进行string
+        break;
+      case "number":
+      case "integer":
+        if (data.enum) {
+          console.warn(`enum is ${data.enum}`);
+          dataType = data.enum.join(" | ");
+        } else if (data.format) {
+          dataType = data.format;
+        } else {
+          dataType = "number";
+        }
+        break;
+      case "boolean":
+        dataType = "boolean";
+        break;
+      case "array":
+        if (data.items) {
+          // if (Array.isArray(data.items)) {
+          //   // [ A, B, C, D ]
+          //   let subType = data.items.map((v) => {
+          //     return new SchemaObjectClass(v).typescript();
+          //   });
+          //   dataType = subType.map((v) => v.dataType).join(", ");
+          // } else {
+          let subType = new ItemsObjectClass(data.items).typescript();
+          dataType = `Array<${subType.dataType}>`;
+          // }
+        } else {
+          dataType = "Array<unknown>";
+        }
+        break;
+      case "object":
+        let additionalType = "";
 
-          if (data.additionalProperties === true) {
-            additionalType = `& { [index: string] : any} `;
-          } else if (typeof data.additionalProperties === "object") {
-            const isReadOnly = data.additionalProperties.readOnly === true;
-            const subType = new SchemaObjectClass(
-              data.additionalProperties
-            ).typescript();
-            additionalType = `& {
+        if (data.additionalProperties === true) {
+          additionalType = `& { [index: string] : any} `;
+        } else if (typeof data.additionalProperties === "object") {
+          const isReadOnly = data.additionalProperties.readOnly === true;
+          const subType = new SchemaObjectClass(
+            data.additionalProperties
+          ).typescript();
+          additionalType = `& {
             ${subType.comment}
             ${isReadOnly ? "readonly " : ""}[index: string]: ${subType.dataType}
           } `;
-          }
+        }
 
-          const required = data.required || [];
-          if (data.properties) {
-            const subType = Object.keys(data.properties).map((propsName) => {
-              const isRequired = required.indexOf(propsName) > -1 ? "" : "?";
-              const isReadOnly = data.properties[propsName].readOnly
-                ? "readonly "
-                : "";
-              const subType = new SchemaObjectClass(
-                data.properties[propsName]
-              ).typescript();
-              return {
-                dataType: `
+        const required = data.required || [];
+        if (data.properties) {
+          const subType = Object.keys(data.properties).map((propsName) => {
+            const isRequired = required.indexOf(propsName) > -1 ? "" : "?";
+            const isReadOnly = data.properties[propsName].readOnly
+              ? "readonly "
+              : "";
+            const subType = new SchemaObjectClass(
+              data.properties[propsName]
+            ).typescript();
+            return {
+              dataType: `
                 ${subType.comment}
                 ${isReadOnly}${propsName}${isRequired}: ${subType.dataType}
               `.trim(),
-              };
-            });
-            dataType =
-              `{ ${subType.map((v) => v.dataType).join("\n")} }` +
-              additionalType;
-          } else {
-            dataType = `Record<string,object>`;
-          }
-          break;
-      }
+            };
+          });
+          dataType =
+            `{ ${subType.map((v) => v.dataType).join("\n")} }` + additionalType;
+        } else {
+          dataType = `Record<string,object>`;
+        }
+        break;
     }
-
     return {
       dataType,
       comment,
@@ -342,6 +338,26 @@ ${tag`\n * @readOnly ${data.readOnly}`}\
   }
 
   javascript() {}
+}
+
+export class SchemaClass extends SchemaObjectClass {
+  protected readonly val: Schema;
+  constructor(val: Schema) {
+    super(val);
+  }
+  typescript() {
+    const data = this.val;
+    if (data.$ref !== undefined) {
+      return {
+        dataType: ReferenceObject({
+          $ref: data.$ref,
+        }),
+        comment: "",
+      };
+    } else {
+      return super.typescript();
+    }
+  }
 }
 
 export function rewriteSchemaObjectType<T extends SchemaObject>(

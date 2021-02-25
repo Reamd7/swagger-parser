@@ -4,13 +4,13 @@ type StringDataFormat = "byte" | "binary" | "date" | "password" | "date-time";
 type BasecollectionFormat = "csv" | "ssv" | "tsv" | "pipes";
 type queryOrformDataCollectionFormat = BasecollectionFormat | "multi";
 type NullObject = {};
-
 type XRecord = {};
-
+// ---------------------------------------------------------
 export type ReferenceObject = {
-  $ref?: string;
+  $ref: string;
 };
-
+export type MimeTypes = string[];
+// ------------------------- InfoObject --------------------------------
 /**
  * Contact information for the exposed API.
  */
@@ -71,9 +71,7 @@ export type InfoObject = {
    */
   version: string;
 } & XRecord;
-
-export type MimeTypes = string[];
-
+// ----------------------- ExternalDocumentationObject ------------------
 /**
  * Allows referencing an external resource for extended documentation.
  */
@@ -87,7 +85,7 @@ export type ExternalDocumentationObject = {
    */
   url: string;
 } & XRecord;
-
+// ------------------------ XMLObject -----------------------------------
 /**
  * A metadata object that allows for more fine-tuned XML model definitions.
  *
@@ -115,7 +113,7 @@ export type XMLObject = {
    */
   wrapped?: boolean;
 } & XRecord;
-
+// ------------------------- ItemsObject ---------------------------------
 export type ItemsObject = {
   /**
    * // 联合类型 A | B | C // TODO 支持
@@ -123,7 +121,7 @@ export type ItemsObject = {
   enum?: any[];
 
   default?: any;
-} & ReferenceObject &
+} & Partial<ReferenceObject> &
   (
     | {
         // 整数类型
@@ -187,6 +185,8 @@ export type ItemsObject = {
       }
   );
 
+// ------------------------- SchemaObject ---------------------------------
+
 export type SchemaObject = {
   /**
    * Adds support for polymorphism. The discriminator is the schema property name that is used to differentiate between other schema that inherit this schema. The property name used MUST be defined at this schema and it MUST be in the required property list. When used, the value MUST be the name of this schema or any schema that inherits it.
@@ -220,7 +220,7 @@ export type SchemaObject = {
    * 联合类型 A | B | C // TODO 支持
    */
   enum?: any[];
-  $ref?: string;
+  // $ref?: string; // TODO 还是应该用 ReferenceObject 区分
   default?: any;
 } & (
   | { type?: "null" }
@@ -290,8 +290,9 @@ export type SchemaObject = {
     }
 ) &
   XRecord;
-
+export type Schema = SchemaObject & Partial<ReferenceObject>;
 // --------------------------------------------------------
+
 type ParameterItemObject<
   T extends "query" | "header" | "path" | "formData" | "body"
 > = ParameterMetaObject<T> &
@@ -389,45 +390,43 @@ type ParameterMetaObject<
   enum?: any[];
   allowEmptyValue?: T extends "query" | "formData" ? boolean : never;
 };
-export type ParameterObject = XRecord &
-  [
-    {
-      in: "body";
-      /**
-       * Required. The schema defining the type used for the body parameter.
-       */
-      schema: SchemaObject;
-    } & ParameterMetaObject<"body"> &
-      ParameterItemObject<"body">,
-    {
-      /**
-       * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
-       */
-      in: "path";
-      required: true;
-    } & ParameterMetaObject<"path"> &
-      ParameterItemObject<"path">,
-    {
-      /**
-       * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
-       */
-      in: "path";
-      required: true;
-    } & ParameterMetaObject<"path"> &
-      ParameterItemObject<"path">,
-    {
-      in: "query";
-    } & ParameterMetaObject<"query"> &
-      ParameterItemObject<"query">,
-    {
-      in: "formData";
-    } & ParameterMetaObject<"formData"> &
-      ParameterItemObject<"formData">,
-    {
-      in: "header";
-    } & ParameterMetaObject<"header"> &
-      ParameterItemObject<"header">
-  ][number];
+export type ParameterObject = XRecord & (
+  ({
+    in: "body";
+    /**
+     * Required. The schema defining the type used for the body parameter.
+     */
+    schema: SchemaObject;
+  } & ParameterItemObject<"body">) | 
+  ({
+    /**
+     * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
+     */
+    in: "path";
+    required: true;
+  } & ParameterItemObject<"path">) |
+  ({
+    in: "query";
+  } & ParameterItemObject<"query">) |
+  ({
+    in: "formData";
+  } & ParameterItemObject<"formData">) |
+  ({
+    in: "header";
+  } & ParameterItemObject<"header">)
+);
+// -----------------------------------------------
+type HeaderObject = ItemsObject;
+type HeadersObject = Record<string, HeaderObject>;
+type ExampleObject = Record<string, any>;
+
+export type ResponseObject = {
+  description: string;
+  schema?: Schema;
+  headers?: HeadersObject;
+  examples?: ExampleObject;
+} & XRecord;
+type Response = ResponseObject | ReferenceObject;
 
 // -----------------------------------------------
 export type TagObject = {
@@ -437,6 +436,10 @@ export type TagObject = {
 } & XRecord;
 
 export type DefinitionsObject = Record<string, SchemaObject>;
+
+export type ParametersDefinitionsObject = Record<string, ParameterObject>
+
+export type ResponsesDefinitionsObject = Record<string, ResponseObject>
 
 export interface Document {
   /**
@@ -466,4 +469,7 @@ export interface Document {
   externalDocs?: ExternalDocumentationObject;
 
   tags?: TagObject[];
+  // 暂时不知道有什么情况用到
+  parameters?: ParametersDefinitionsObject;
+  responses?: ResponsesDefinitionsObject;
 }

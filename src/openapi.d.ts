@@ -117,6 +117,23 @@ export declare namespace OpenAPIV2 {
     [index: string]: Response | any;
     default?: Response;
   }
+
+  interface PathItemObject<T extends {} = {}> {
+    $ref?: string;
+    get?: OperationObject<T>;
+    put?: OperationObject<T>;
+    post?: OperationObject<T>;
+    del?: OperationObject<T>;
+    delete?: OperationObject<T>;
+    options?: OperationObject<T>;
+    head?: OperationObject<T>;
+    patch?: OperationObject<T>;
+    parameters?: Parameters;
+  }
+  interface PathsObject<T extends {} = {}> {
+    [index: string]: PathItemObject<T> | any;
+  }
+  // --------------------------- Parameters ------------------------------------
   type Parameters = (ReferenceObject | Parameter)[];
   type Parameter = InBodyParameterObject | GeneralParameterObject;
   type ParameterObject = {
@@ -155,22 +172,7 @@ export declare namespace OpenAPIV2 {
 
     // $ref?: string
   }
-  
-  interface PathItemObject<T extends {} = {}> {
-    $ref?: string;
-    get?: OperationObject<T>;
-    put?: OperationObject<T>;
-    post?: OperationObject<T>;
-    del?: OperationObject<T>;
-    delete?: OperationObject<T>;
-    options?: OperationObject<T>;
-    head?: OperationObject<T>;
-    patch?: OperationObject<T>;
-    parameters?: Parameters;
-  }
-  interface PathsObject<T extends {} = {}> {
-    [index: string]: PathItemObject<T> | any;
-  }
+
   interface ParametersDefinitionsObject {
     [index: string]: Parameter;
   }
