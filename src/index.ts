@@ -22,9 +22,14 @@ GetSwaggerJSON("http://localhost:8008/api/v2/api-docs").then((buf) => {
 
   fs.writeFileSync(
     "./dist/out.ts",
-    `
+    prettier.format(
+      `
     ${baseInfo}
     ${new DefinitionsObjectClass(data.definitions).typescript().dataType}
-    `
+    `,
+      {
+        parser: "babel-ts",
+      }
+    )
   );
 });

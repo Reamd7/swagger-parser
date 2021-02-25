@@ -298,7 +298,7 @@ ${[
           additionalType = `& { [index: string] : any} `;
         } else if (typeof data.additionalProperties === "object") {
           const isReadOnly = data.additionalProperties.readOnly === true;
-          const subType = new SchemaObjectClass(
+          const subType = new SchemaClass(
             data.additionalProperties
           ).typescript();
           additionalType = `& {
@@ -314,7 +314,7 @@ ${[
             const isReadOnly = data.properties[propsName].readOnly
               ? "readonly "
               : "";
-            const subType = new SchemaObjectClass(
+            const subType = new SchemaClass(
               data.properties[propsName]
             ).typescript();
             return {

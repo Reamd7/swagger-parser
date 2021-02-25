@@ -215,7 +215,7 @@ export type SchemaObject = {
   /**
    * 必须对其中所有定义都有效
    */
-  allOf?: SchemaObject[];
+  allOf?: Schema[];
   /**
    * 联合类型 A | B | C // TODO 支持
    */
@@ -281,9 +281,9 @@ export type SchemaObject = {
       minProperties?: number; // object最小props数
       required?: string[]; // 必须props属性
       properties?: {
-        [name: string]: SchemaObject;
+        [name: string]: Schema;
       };
-      additionalProperties?: boolean | SchemaObject; // 是否支持 [index: string] : XXX类型；
+      additionalProperties?: boolean | Schema; // 是否支持 [index: string] : XXX类型；
     }
   | {
       type?: "boolean";
