@@ -1,10 +1,13 @@
 import type { ResponseObject } from "../base";
 import { SchemaClass } from "./SchemaObject";
 
-interface ResponseObjectClassReturnType {}
+interface ResponseObjectClassReturnType {
+  dataType: string;
+  comment: string;
+}
 
 export default class ResponseObjectClass {
-  private val: ResponseObject;
+  protected val: ResponseObject;
   constructor(val: ResponseObject) {
     this.val = val;
   }

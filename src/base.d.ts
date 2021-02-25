@@ -1,3 +1,5 @@
+// TODO 仔细针对 ReferenceObject 进行处理，因为规范 和 具体实现有点不一样
+
 type IntDataFormat = "int32" | "int64";
 type numberDataFormat = "float" | "double";
 type StringDataFormat = "byte" | "binary" | "date" | "password" | "date-time";
@@ -114,15 +116,14 @@ export type XMLObject = {
   wrapped?: boolean;
 } & XRecord;
 // ------------------------- ItemsObject ---------------------------------
-export type ItemsObject = {
+export type ItemsObject = Partial<ReferenceObject> & {
   /**
    * // 联合类型 A | B | C // TODO 支持
    */
   enum?: any[];
 
   default?: any;
-} & Partial<ReferenceObject> &
-  (
+} & (
     | {
         // 整数类型
         type?: "integer";
@@ -390,31 +391,33 @@ type ParameterMetaObject<
   enum?: any[];
   allowEmptyValue?: T extends "query" | "formData" ? boolean : never;
 };
-export type ParameterObject = XRecord & (
-  ({
-    in: "body";
-    /**
-     * Required. The schema defining the type used for the body parameter.
-     */
-    schema: SchemaObject;
-  } & ParameterItemObject<"body">) | 
-  ({
-    /**
-     * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
-     */
-    in: "path";
-    required: true;
-  } & ParameterItemObject<"path">) |
-  ({
-    in: "query";
-  } & ParameterItemObject<"query">) |
-  ({
-    in: "formData";
-  } & ParameterItemObject<"formData">) |
-  ({
-    in: "header";
-  } & ParameterItemObject<"header">)
-);
+export type ParameterObject = XRecord &
+  (
+    | ({
+        in: "body";
+        /**
+         * Required. The schema defining the type used for the body parameter.
+         */
+        schema: SchemaObject;
+      } & ParameterItemObject<"body">)
+    | ({
+        /**
+         * Required. The location of the parameter. Possible values are "query", "header", "path", "formData" or "body".
+         */
+        in: "path";
+        required: true;
+      } & ParameterItemObject<"path">)
+    | ({
+        in: "query";
+      } & ParameterItemObject<"query">)
+    | ({
+        in: "formData";
+      } & ParameterItemObject<"formData">)
+    | ({
+        in: "header";
+      } & ParameterItemObject<"header">)
+  );
+
 // -----------------------------------------------
 type HeaderObject = ItemsObject;
 type HeadersObject = Record<string, HeaderObject>;
@@ -428,7 +431,68 @@ export type ResponseObject = {
 } & XRecord;
 type Response = ResponseObject | ReferenceObject;
 
+// type HTTPStatusCode =
+//   | `10${"0" | "1" | "2"}`
+//   | `20${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"}`
+//   | `30${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"}`
+//   | `40${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"}`
+//   | `41${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8"}`
+//   | `42${"1" | "2" | "3" | "4" | "5" | "6"}`
+//   | "449"
+//   | "451"
+//   | `50${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"}`
+//   | `510`
+//   | `600`;
+type HTTPStatusCode = `${"1" | "2" | "3" | "4" | "5" | "6"}${
+  | "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"}${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"}`;
+
+type ResponsesObject = {
+  [key in HTTPStatusCode]: Response;
+} &
+  XRecord & {
+    default?: Response;
+  };
+
 // -----------------------------------------------
+type Parameters = (ReferenceObject | ParameterObject)[];
+type OperationObject = {
+  tags?: string[];
+  summary?: string;
+  description?: string;
+  externalDocs?: ExternalDocumentationObject;
+  operationId?: string;
+  consumes?: MimeTypes;
+  produces?: MimeTypes;
+  parameters?: (ReferenceObject | ParameterObject)[];
+  responses: ResponsesObject;
+  schemes?: string[];
+  deprecated?: boolean;
+  // security?: SecurityRequirementObject[];
+};
+
+interface PathItemObject {
+  $ref?: string;
+  get?: OperationObject;
+  put?: OperationObject;
+  post?: OperationObject;
+  del?: OperationObject;
+  delete?: OperationObject;
+  options?: OperationObject;
+  head?: OperationObject;
+  patch?: OperationObject;
+  parameters?: Parameters;
+}
+// -----------------------------------------------
+
 export type TagObject = {
   name: string;
   description?: string;
@@ -437,9 +501,9 @@ export type TagObject = {
 
 export type DefinitionsObject = Record<string, SchemaObject>;
 
-export type ParametersDefinitionsObject = Record<string, ParameterObject>
+export type ParametersDefinitionsObject = Record<string, ParameterObject>;
 
-export type ResponsesDefinitionsObject = Record<string, ResponseObject>
+export type ResponsesDefinitionsObject = Record<string, ResponseObject>;
 
 export interface Document {
   /**
