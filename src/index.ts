@@ -16,8 +16,8 @@ type date = string;
 type datetime = string;
 type password = string;
 `;
-
-GetSwaggerJSON("http://localhost:8008/api/v2/api-docs").then((buf) => {
+// http://localhost:8008/api/v2/api-docs
+GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then((buf) => {
   const data = JSON.parse(buf.toString()) as Document;
 
   fs.writeFileSync(

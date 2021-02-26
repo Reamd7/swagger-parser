@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs = require("fs");
 import fetch from "node-fetch";
 import isURL = require("is-url");
 

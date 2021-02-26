@@ -163,15 +163,17 @@ export default class DefinitionsObjectClass {
             // 需要进行处理了。
             const name = changeTemplateType[key];
             // const type = element.type || "object"; // TODO
-            const subType = new SchemaObjectClass(element, this.base).typescript();
-
+            const subTypeIns = new SchemaObjectClass(element, this.base)
+            const subType = subTypeIns.typescript();
+            
             dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
               subType.dataType
             }\n`;
           }
         } else {
           const name = key;
-          const subType = new SchemaObjectClass(element, this.base).typescript();
+          const subTypeIns = new SchemaObjectClass(element, this.base)
+          const subType = subTypeIns.typescript();
 
           dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
             subType.dataType
