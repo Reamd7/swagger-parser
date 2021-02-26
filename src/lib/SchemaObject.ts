@@ -16,7 +16,9 @@ export interface SchemaObjectClassReturnType {
 export default class SchemaObjectClass {
   protected readonly val: SchemaObject;
   protected readonly base: Document;
-  protected _rawRef: ReferenceObjectClass<SchemaObject> | null = null;
+  protected _rawRef: ReferenceObjectClass<
+    Omit<SchemaObject, "$ref">
+  > | null = null;
   static Format2Type = {
     int32: "integer",
     int64: "integer",
@@ -32,7 +34,7 @@ export default class SchemaObjectClass {
     this.val = val;
     this.base = base;
     if (val.$ref) {
-      this._rawRef = new ReferenceObjectClass<SchemaObject>(
+      this._rawRef = new ReferenceObjectClass<Omit<SchemaObject, "$ref">>(
         {
           $ref: val.$ref,
         },
@@ -132,11 +134,13 @@ ${[
           if (data.additionalProperties === true) {
             additionalType = `& { [index: string] : any} `;
           } else if (typeof data.additionalProperties === "object") {
-            const isReadOnly = data.additionalProperties.readOnly === true;
-            const subType = new SchemaObjectClass(
+            const ref = new SchemaObjectClass(
               data.additionalProperties,
               this.base
-            ).typescript();
+            );
+            const subType = ref.typescript();
+            const isReadOnly = ref.SourceObject.readOnly === true;
+
             additionalType = `& {
             ${subType.comment}
             ${isReadOnly ? "readonly " : ""}[index: string]: ${subType.dataType}
