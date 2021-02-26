@@ -116,7 +116,8 @@ export type XMLObject = {
   wrapped?: boolean;
 } & XRecord;
 // ------------------------- ItemsObject ---------------------------------
-export type ItemsObject = Partial<ReferenceObject> & {
+export type Items = ReferenceObject | ItemsObject;
+export type ItemsObject = {
   /**
    * // 联合类型 A | B | C // TODO 支持
    */
@@ -124,70 +125,76 @@ export type ItemsObject = Partial<ReferenceObject> & {
 
   default?: any;
 } & (
-    | {
-        // 整数类型
-        type?: "integer";
-        format?: IntDataFormat;
+  | {
+      // 整数类型
+      type?: "integer";
+      format?: IntDataFormat;
 
-        // Validation keywords sorted by instance types
-        multipleOf?: number; // value 是 multipleOf 的倍数
-        // x ≥ minimum
-        // x > exclusiveMinimum
-        // x ≤ maximum
-        // x < exclusiveMaximum
-        maximum?: number;
-        exclusiveMaximum?: boolean;
-        minimum?: number;
-        exclusiveMinimum?: boolean;
-      }
-    | {
-        // 浮点数
-        type?: "number";
-        format?: numberDataFormat;
+      // Validation keywords sorted by instance types
+      multipleOf?: number; // value 是 multipleOf 的倍数
+      // x ≥ minimum
+      // x > exclusiveMinimum
+      // x ≤ maximum
+      // x < exclusiveMaximum
+      maximum?: number;
+      exclusiveMaximum?: boolean;
+      minimum?: number;
+      exclusiveMinimum?: boolean;
+    }
+  | {
+      // 浮点数
+      type?: "number";
+      format?: numberDataFormat;
 
-        // Validation keywords sorted by instance types
-        multipleOf?: number; // value 是 multipleOf 的倍数
-        // x ≥ minimum
-        // x > exclusiveMinimum
-        // x ≤ maximum
-        // x < exclusiveMaximum
-        maximum?: number;
-        exclusiveMaximum?: boolean;
-        minimum?: number;
-        exclusiveMinimum?: boolean;
-      }
-    | {
-        type?: "string";
-        format?: StringDataFormat;
+      // Validation keywords sorted by instance types
+      multipleOf?: number; // value 是 multipleOf 的倍数
+      // x ≥ minimum
+      // x > exclusiveMinimum
+      // x ≤ maximum
+      // x < exclusiveMaximum
+      maximum?: number;
+      exclusiveMaximum?: boolean;
+      minimum?: number;
+      exclusiveMinimum?: boolean;
+    }
+  | {
+      type?: "string";
+      format?: StringDataFormat;
 
-        maxLength?: number; // 字符串最大长度
-        minLength?: number; // 字符串最小长度
-        pattern?: string; // 字符串匹配正则表达式
-      }
-    | {
-        type?: "array";
-        // type array 校验
-        maxItems?: number; // 数组最大items数
-        minItems?: number; // 数组最小items数
-        uniqueItems?: boolean; // 数组中每个items都必须是唯一的
-        // items?: OpenAPIV2.ItemsObject | OpenAPIV2.ItemsObject[];
-        items?: ItemsObject;
-        /**
-         * Determines the format of the array if type array is used. Possible values are:
-         * csv - comma separated values foo,bar.
-         * ssv - space separated values foo bar.
-         * tsv - tab separated values foo\tbar.
-         * pipes - pipe separated values foo|bar.
-         */
-        collectionFormat?: "csv" | "ssv" | "tsv" | "pipes";
-      }
-    | {
-        type?: "boolean";
-      }
-  );
+      maxLength?: number; // 字符串最大长度
+      minLength?: number; // 字符串最小长度
+      pattern?: string; // 字符串匹配正则表达式
+    }
+  | {
+      type?: "array";
+      // type array 校验
+      maxItems?: number; // 数组最大items数
+      minItems?: number; // 数组最小items数
+      uniqueItems?: boolean; // 数组中每个items都必须是唯一的
+      // items?: OpenAPIV2.ItemsObject | OpenAPIV2.ItemsObject[];
+      items?: Items;
+      /**
+       * Determines the format of the array if type array is used. Possible values are:
+       * csv - comma separated values foo,bar.
+       * ssv - space separated values foo bar.
+       * tsv - tab separated values foo\tbar.
+       * pipes - pipe separated values foo|bar.
+       */
+      collectionFormat?: "csv" | "ssv" | "tsv" | "pipes";
+    }
+  | {
+      type?: "boolean";
+    }
+);
 
 // ------------------------- SchemaObject ---------------------------------
-
+// ✔
+/**
+ * 用于
+ * - Response Object, schema
+ * - Definitions Object
+ * - Parameter Object in body => schema
+ */
 export type SchemaObject = {
   /**
    * Adds support for polymorphism. The discriminator is the schema property name that is used to differentiate between other schema that inherit this schema. The property name used MUST be defined at this schema and it MUST be in the required property list. When used, the value MUST be the name of this schema or any schema that inherits it.
@@ -216,12 +223,12 @@ export type SchemaObject = {
   /**
    * 必须对其中所有定义都有效
    */
-  allOf?: Schema[];
+  allOf?: SchemaObject[];
   /**
    * 联合类型 A | B | C // TODO 支持
    */
   enum?: any[];
-  // $ref?: string; // TODO 还是应该用 ReferenceObject 区分
+  $ref?: ReferenceObject['$ref']; // 这里是规范定义的哟
   default?: any;
 } & (
   | { type?: "null" }
@@ -272,7 +279,7 @@ export type SchemaObject = {
       minItems?: number; // 数组最小items数
       uniqueItems?: boolean; // 数组中每个items都必须是唯一的
       // items?: OpenAPIV2.SchemaObject | OpenAPIV2.SchemaObject[];
-      items?: ItemsObject;
+      items?: Items;
       collectionFormat?: BasecollectionFormat;
     }
   | {
@@ -282,16 +289,15 @@ export type SchemaObject = {
       minProperties?: number; // object最小props数
       required?: string[]; // 必须props属性
       properties?: {
-        [name: string]: Schema;
+        [name: string]: SchemaObject;
       };
-      additionalProperties?: boolean | Schema; // 是否支持 [index: string] : XXX类型；
+      additionalProperties?: boolean | SchemaObject; // 是否支持 [index: string] : XXX类型；
     }
   | {
       type?: "boolean";
     }
 ) &
   XRecord;
-export type Schema = SchemaObject & Partial<ReferenceObject>;
 // --------------------------------------------------------
 
 type ParameterItemObject<
@@ -417,7 +423,7 @@ export type ParameterObject = XRecord &
         in: "header";
       } & ParameterItemObject<"header">)
   );
-
+export type Parameter = ReferenceObject | ParameterObject;
 // -----------------------------------------------
 type HeaderObject = ItemsObject;
 type HeadersObject = Record<string, HeaderObject>;
@@ -425,7 +431,7 @@ type ExampleObject = Record<string, any>;
 
 export type ResponseObject = {
   description: string;
-  schema?: Schema;
+  schema?: SchemaObject;
   headers?: HeadersObject;
   examples?: ExampleObject;
 } & XRecord;
@@ -463,7 +469,7 @@ type ResponsesObject = {
   };
 
 // -----------------------------------------------
-type Parameters = (ReferenceObject | ParameterObject)[];
+type Parameters = Parameter[];
 type OperationObject = {
   tags?: string[];
   summary?: string;
@@ -472,7 +478,7 @@ type OperationObject = {
   operationId?: string;
   consumes?: MimeTypes;
   produces?: MimeTypes;
-  parameters?: (ReferenceObject | ParameterObject)[];
+  parameters?: Parameters;
   responses: ResponsesObject;
   schemes?: string[];
   deprecated?: boolean;
