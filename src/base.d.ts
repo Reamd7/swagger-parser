@@ -116,7 +116,14 @@ export type XMLObject = {
   wrapped?: boolean;
 } & XRecord;
 // ------------------------- ItemsObject ---------------------------------
-export type Items = ReferenceObject | ItemsObject;
+/**
+ * 这个用于一切 items：xxx
+ */
+export type Items = Partial<ReferenceObject> & ItemsObject;
+
+/**
+ * 这个仅仅是用在 Header Object
+ */
 export type ItemsObject = {
   /**
    * // 联合类型 A | B | C // TODO 支持
@@ -351,7 +358,7 @@ type ParameterItemObject<
         minItems?: number; // 数组最小items数
         uniqueItems?: boolean; // 数组中每个items都必须是唯一的
         // items?: OpenAPIV2.ItemsObject | OpenAPIV2.ItemsObject[];
-        items?: ItemsObject;
+        items?: Items;
         /**
          * 	Determines the format of the array if type array is used. Possible values are:
          * csv - comma separated values foo,bar.

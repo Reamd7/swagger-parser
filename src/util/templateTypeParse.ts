@@ -62,7 +62,7 @@ export default function templateTypeParse(str: string) {
   if (start < 0) {
     return str;
   }
-  let passTemplateType = []; // 这是一个同步方法。
+  let passTemplateType: string[] = []; // 这是一个同步方法。
   let parent = str.substring(0, start);
   // 替换内置类型。
   if (parent in innerType) {

@@ -5,6 +5,8 @@ export const getDefinitionsObjectRef = (key: string) =>
 export const getDefinitionsObjectkey = (key: string) =>
   key.substring(14).replace(/«/g, "<").replace(/»/g, ">");
 
+// NOTE 其实这里是有一个前提条件的限制：必须 ref string : #/definitions/RefName
+
 export default class ReferenceObjectClass<T> {
   private readonly val: ReferenceObject;
   private readonly base: Document;
