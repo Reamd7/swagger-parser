@@ -121,7 +121,7 @@ ${[
             //   });
             //   dataType = subType.map((v) => v.dataType).join(", ");
             // } else {
-            let subType = new ItemsClass(data.items).typescript();
+            let subType = new ItemsClass(data.items, this.base).typescript();
             dataType = `Array<${subType.dataType}>`;
             // }
           } else {

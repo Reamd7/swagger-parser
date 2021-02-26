@@ -122,7 +122,9 @@ export type XMLObject = {
 export type Items = Partial<ReferenceObject> & ItemsObject;
 
 /**
- * 这个仅仅是用在 Header Object
+ * - 这个仅仅是用在 Header Object
+ * - 还有一个点，这个很类似与 ParameterItemObject, 
+ *  > 仅仅是相差与 queryOrformDataCollectionFormat 多一个 multi
  */
 export type ItemsObject = {
   /**
@@ -187,7 +189,7 @@ export type ItemsObject = {
        * tsv - tab separated values foo\tbar.
        * pipes - pipe separated values foo|bar.
        */
-      collectionFormat?: "csv" | "ssv" | "tsv" | "pipes";
+      collectionFormat?: BasecollectionFormat;
     }
   | {
       type?: "boolean";
