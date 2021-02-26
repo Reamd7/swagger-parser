@@ -90,7 +90,9 @@ export class ParameterClass {
         dataType: this._rawRef?.Objectkey || "unknown",
       };
     } else {
-      return this._class!.typescript().dataType;
+      return {
+        dataType: this._class!.typescript().dataType,
+      };
     }
   }
 

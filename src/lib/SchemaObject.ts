@@ -62,8 +62,9 @@ export default class SchemaObjectClass {
             },
             this.base
           ));
+      const comment = new SchemaObjectClass(this.SourceObject, this.base).typescript().comment;
       return {
-        comment: "",
+        comment: comment,
         dataType: subDataType.Objectkey,
       };
     } else {
