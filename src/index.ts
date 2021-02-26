@@ -25,7 +25,7 @@ GetSwaggerJSON("http://localhost:8008/api/v2/api-docs").then((buf) => {
     prettier.format(
       `
     ${baseInfo}
-    ${new DefinitionsObjectClass(data.definitions).typescript().dataType}
+    ${new DefinitionsObjectClass(data).typescript().dataType}
     `,
       {
         parser: "babel-ts",

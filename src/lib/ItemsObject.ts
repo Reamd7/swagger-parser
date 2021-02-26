@@ -114,7 +114,7 @@ export default class ItemsObjectClass {
 
   typescript(): ItemsObjectClassReturnType {
     const data = this.val;
-    let dataType = "unknown";
+    let dataType = data.type || "unknown";
     let comment = ``;
 
     switch (data.type) {

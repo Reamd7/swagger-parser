@@ -1,4 +1,4 @@
-import type { DefinitionsObject, SchemaObject } from "../../base";
+import type { DefinitionsObject, Document, SchemaObject } from "../../base";
 import tag from "../../util/tag";
 import SchemaObjectClass, { rewriteSchemaObjectType } from "../SchemaObject";
 import { addedDiff } from "deep-object-diff";
@@ -38,9 +38,11 @@ export interface DefinitionsObjectClassReturnType {
 }
 export default class DefinitionsObjectClass {
   private val: DefinitionsObject;
+  private base: Document;
   private passTemplateType: string[] = [];
-  constructor(val: DefinitionsObject) {
-    this.val = val;
+  constructor(base: Document) {
+    this.val = base['definitions']!;
+    this.base = base;
   }
 
   Generic() {
@@ -91,7 +93,7 @@ export default class DefinitionsObjectClass {
                           // TODO 这里是针对JAVA的生成出来的代码处理的。
 
                           // 进行所有的 Schema 解析为 具体类型的表述，然后替换掉« » Array => List ( 希望匹配到 GenericMap 的 key )
-                          const diffElSub = new SchemaObjectClass(diffEl)
+                          const diffElSub = new SchemaObjectClass(diffEl, this.base)
                             .typescript()
                             .dataType.replace(/Array</g, "List«")
                             .replace(/</g, "«")
@@ -100,15 +102,17 @@ export default class DefinitionsObjectClass {
                           let genType = GenericMap[diffElSub]; // 查到 泛型标签
                           if (genType) {
                             // 将原有类型替换成为泛型标签
-                            ParentData.properties[
-                              propsName
-                            ] = rewriteSchemaObjectType(
-                              genType,
-                              ParentData.properties[propsName] // 原有obj
-                            );
-                            // 将 泛型List，按顺序注入泛型标签，最后生成 title
-                            GenericValueSubList.push(genType);
-                            delete GenericMap[diffElSub];
+                            if (ParentData.properties) {
+                              ParentData.properties[
+                                propsName
+                              ] = rewriteSchemaObjectType(
+                                genType,
+                                ParentData.properties[propsName] // 原有obj
+                              );
+                              // 将 泛型List，按顺序注入泛型标签，最后生成 title
+                              GenericValueSubList.push(genType);
+                              delete GenericMap[diffElSub];
+                            }
                           } else {
                             console.error("泛型 不匹配 ");
                           }
@@ -159,7 +163,7 @@ export default class DefinitionsObjectClass {
             // 需要进行处理了。
             const name = changeTemplateType[key];
             // const type = element.type || "object"; // TODO
-            const subType = new SchemaObjectClass(element).typescript();
+            const subType = new SchemaObjectClass(element, this.base).typescript();
 
             dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
               subType.dataType
@@ -167,7 +171,7 @@ export default class DefinitionsObjectClass {
           }
         } else {
           const name = key;
-          const subType = new SchemaObjectClass(element).typescript();
+          const subType = new SchemaObjectClass(element, this.base).typescript();
 
           dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
             subType.dataType
