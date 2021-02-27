@@ -1,8 +1,4 @@
-import type {
-  ParameterObject,
-  Parameter,
-  Document,
-} from "../base";
+import type { ParameterObject, Parameter, Document } from "../base";
 import tag from "../util/tag";
 import ItemsObjectClass from "./ItemsObject";
 import ReferenceObjectClass from "./ReferenceObject";
@@ -56,7 +52,7 @@ export default class ParameterObjectClass {
 
 export class ParameterClass {
   readonly _raw: Parameter;
-  private _class: ParameterObjectClass | null = null;
+  private _class: ParameterObjectClass;
   private base: Document;
   protected _rawRef: ReferenceObjectClass<ParameterObject> | null = null;
   constructor(val: Parameter, base: Document) {
@@ -65,10 +61,15 @@ export class ParameterClass {
     if (!isReferenceObject(val)) {
       this._class = new ParameterObjectClass(val, this.base);
     } else {
+      // 直接在此处找到 sourceObject，然后直接处理，就不对 ParametersDefinitionsObject 进行处理，和 Definition 不一样
       this._rawRef = new ReferenceObjectClass<ParameterObject>(
         {
           $ref: val.$ref,
         },
+        this.base
+      );
+      this._class = new ParameterObjectClass(
+        this._rawRef.SourceObject,
         this.base
       );
     }
@@ -83,17 +84,9 @@ export class ParameterClass {
   }
 
   typescript() {
-    const data = this._raw;
-
-    if (isReferenceObject(data)) {
-      return {
-        dataType: this._rawRef?.Objectkey || "unknown",
-      };
-    } else {
-      return {
-        dataType: this._class!.typescript().dataType,
-      };
-    }
+    return {
+      dataType: this._class.typescript().dataType,
+    };
   }
 
   javascript() {}

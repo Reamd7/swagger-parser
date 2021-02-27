@@ -440,8 +440,11 @@ type ExampleObject = Record<string, any>;
 
 export type ResponseObject = {
   description: string;
+  // A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response. As an extension to the Schema Object, its root type value may also be "file". This SHOULD be accompanied by a relevant produces mime-type.
   schema?: SchemaObject;
+  // A list of headers that are sent with the response.
   headers?: HeadersObject;
+  // An example of the response message.
   examples?: ExampleObject;
 } & XRecord;
 type Response = ResponseObject | ReferenceObject;
@@ -470,8 +473,8 @@ type HTTPStatusCode = `${"1" | "2" | "3" | "4" | "5" | "6"}${
   | "8"
   | "9"}${"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"}`;
 
-type ResponsesObject = {
-  [key in HTTPStatusCode]: Response;
+type ResponsesMapObject = {
+  [key in HTTPStatusCode]?: Response;
 } &
   XRecord & {
     default?: Response;
@@ -488,7 +491,7 @@ type OperationObject = {
   consumes?: MimeTypes;
   produces?: MimeTypes;
   parameters?: Parameters;
-  responses: ResponsesObject;
+  responses: ResponsesMapObject;
   schemes?: string[];
   deprecated?: boolean;
   // security?: SecurityRequirementObject[];
@@ -548,7 +551,22 @@ export interface Document {
   externalDocs?: ExternalDocumentationObject;
 
   tags?: TagObject[];
-  // 暂时不知道有什么情况用到
+
+  // 不进行展开，已经在 ResponseObject 中直接通过$ref 的 sourceObject 进行处理
   parameters?: ParametersDefinitionsObject;
+  // 不进行展开，已经在 ResponseObject 中直接通过$ref 的 sourceObject 进行处理
   responses?: ResponsesDefinitionsObject;
+
+  paths: Record<string, PathItemObject>
+  
+  // 我还没有遇见这个情况，再看看怎么实现这个，按道理来说，我在 OperationObjectClass 中单独处理 header 的 Authorization 就应该是这里的操作。
+  // 但是是不是有局限性，如果有些url需要验证有些不需要这里是不是就不太合适。
+
+  // security?: SecurityRequirementObject[];
+  // securityDefinitions?: SecurityDefinitionsObject;
+  // "x-express-openapi-additional-middleware"?: (
+  //   | ((request: any, response: any, next: any) => Promise<void>)
+  //   | ((request: any, response: any, next: any) => void)
+  // )[];
+  // "x-express-openapi-validation-strict"?: boolean;
 }

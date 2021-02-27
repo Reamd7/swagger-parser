@@ -1,20 +1,22 @@
 export declare namespace OpenAPIV2 {
   interface Document<T extends {} = {}> {
+    swagger: string;
+    info: InfoObject;
+    host?: string;
     basePath?: string;
+    schemes?: string[];
     consumes?: MimeTypes;
+    produces?: MimeTypes;
     definitions?: DefinitionsObject;
     externalDocs?: ExternalDocumentationObject;
-    host?: string;
-    info: InfoObject;
+    tags?: TagObject[];
     parameters?: ParametersDefinitionsObject;
-    paths: PathsObject<T>;
-    produces?: MimeTypes;
     responses?: ResponsesDefinitionsObject;
-    schemes?: string[];
+
+    paths: PathsObject<T>;
+    
     security?: SecurityRequirementObject[];
     securityDefinitions?: SecurityDefinitionsObject;
-    swagger: string;
-    tags?: TagObject[];
     "x-express-openapi-additional-middleware"?: (
       | ((request: any, response: any, next: any) => Promise<void>)
       | ((request: any, response: any, next: any) => void)
