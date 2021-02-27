@@ -22,7 +22,7 @@ export default class ResponseObjectClass {
 
   typescript(): ResponseObjectClassReturnType {
     const data = this.val;
-    const comment = data.description ? `/** ${data.description} */` : "";
+    const comment = data.description ? `/** ${data.description} */\n` : "";
 
     // response structure
     if (data.schema) {
@@ -96,27 +96,33 @@ export class ResponsesMapObjectClass {
     this.base = base;
     this.operationId = operationId;
   }
+
+  get ResponsesKey() {
+    return `${this.operationId}Response`;
+  }
+
   typescript() {
     // TODO 暂时来说 axios 只能用 一个 Response 因为 AxiosResponse 有局限性
     let result = "";
 
-    return (
-      `export type ${this.operationId}Response = ${Object.entries(this.val)
-        .map(([key, val]) => {
-          if (val) {
-            const res = new ResponseClass(val, this.base).typescript();
-            if (res.dataType) {
-              const TypeName = `${this.operationId}Response${key}`;
-              result += `${res.comment}export type ${TypeName} = ${res.dataType}`;
-              return TypeName;
-            }
+    const s = Object.entries(this.val)
+      .map(([key, val]) => {
+        if (val) {
+          const res = new ResponseClass(val, this.base).typescript();
+          if (res.dataType) {
+            const TypeName = `${this.operationId}Response${key}`;
+            result += `\
+${res.comment}
+export type ${TypeName} = ${res.dataType}`;
+            return TypeName;
           }
-          return "";
-        })
-        .filter(Boolean)
-        .join(" | ")}` +
-      "\n" +
-      result
+        }
+        return "";
+      })
+      .filter(Boolean);
+
+    return (
+      `export type ${this.ResponsesKey} = ${s.length > 0 ? s.join(" | ") : "unknown"}` + "\n" + result
     );
   }
 }

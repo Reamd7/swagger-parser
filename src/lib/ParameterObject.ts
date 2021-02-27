@@ -9,7 +9,7 @@ export default class ParameterObjectClass {
   readonly _raw: ParameterObject;
   private base: Document;
   private get requiredString() {
-    return this._raw.required ? "?" : "";
+    return this._raw.required ? "" : "?";
   }
   constructor(val: ParameterObject, base: Document) {
     this._raw = val;

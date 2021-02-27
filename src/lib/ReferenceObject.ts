@@ -37,16 +37,19 @@ export default class ReferenceObjectClass<T> {
       .replace(/>/g, "»")}`;
   }
   get Objectkey() {
-    return this.sourceKey;
+    return ReferenceObjectClass.getObjectkey(this.sourceKey, this.predictType);
+    // return this.sourceKey;
   }
+
   get SourceObject(): T {
     if (this.sourceObj) {
       return this.sourceObj;
     } else {
       if (this.predictType === "definitions") {
         const definedSet = this.base[this.predictType];
-        const subType = definedSet ? definedSet[this.Objectkey] : undefined;
+        const subType = definedSet ? definedSet[this.sourceKey] : undefined;
         if (!subType) {
+          debugger;
           throw Error(`${this.val.$ref} 不存在`);
         }
         if (subType.$ref) {
@@ -62,7 +65,7 @@ export default class ReferenceObjectClass<T> {
         return this.sourceObj;
       } else if (this.predictType === "parameters") {
         const definedSet = this.base[this.predictType];
-        const subType = definedSet ? definedSet[this.Objectkey] : undefined;
+        const subType = definedSet ? definedSet[this.sourceKey] : undefined;
         if (!subType) {
           throw Error(`${this.val.$ref} 不存在`);
         }
@@ -71,7 +74,7 @@ export default class ReferenceObjectClass<T> {
       } else {
         // } else if (this.predictType === "responses") {
         const definedSet = this.base[this.predictType];
-        const subType = definedSet ? definedSet[this.Objectkey] : undefined;
+        const subType = definedSet ? definedSet[this.sourceKey] : undefined;
         if (!subType) {
           throw Error(`${this.val.$ref} 不存在`);
         }
@@ -82,18 +85,23 @@ export default class ReferenceObjectClass<T> {
   }
   static getObjectRef(
     key: string,
-    type: "definitions" | "parameters" = "definitions"
+    type: "definitions" | "parameters" | "responses" = "definitions"
   ) {
     return `#/${type}/${key.replace(/</g, "«").replace(/>/g, "»")}`;
   }
   static getObjectkey(
     key: string,
-    type: "definitions" | "parameters" = "definitions"
+    type: "definitions" | "parameters" | "responses" = "definitions"
   ) {
+    key = key.startsWith(`#/${type}/`)
+      ? key.substring(`#/${type}/`.length)
+      : key;
+    
     return key
-      .substring(`#/${type}/`.length)
       .replace(/«/g, "<")
-      .replace(/»/g, ">");
+      .replace(/»/g, ">")
+      .replace(/List</g, "Array<")
+      .replace(/Map</g, "Record<");
   }
 }
 

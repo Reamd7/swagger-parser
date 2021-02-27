@@ -2,7 +2,9 @@ import type { DefinitionsObject, Document, SchemaObject } from "../../base";
 import tag from "../../util/tag";
 import SchemaObjectClass, { rewriteSchemaObjectType } from "../SchemaObject";
 import { addedDiff } from "deep-object-diff";
-import templateTypeParse, { templateTypeEach } from "../../util/templateTypeParse";
+import templateTypeParse, {
+  templateTypeEach,
+} from "../../util/templateTypeParse";
 
 const GenericValueList = [
   "T",
@@ -41,11 +43,13 @@ export default class DefinitionsObjectClass {
   private base: Document;
   private passTemplateType: string[] = [];
   constructor(base: Document) {
-    this.val = base['definitions']!;
+    this.val = base["definitions"]!;
     this.base = base;
   }
 
   Generic() {
+    // 用一个记录器将他修了。
+    const finishParentType = new Set();
     // const passTemplateType = this.passTemplateType;
     // 由于 OpenApi 里面没有泛型 的支持
     for (const key in this.val) {
@@ -57,6 +61,7 @@ export default class DefinitionsObjectClass {
             // 这是必然的, 因为上一个 indexOf
             templateTypeEach(tempType[0], (v) => {
               if (
+                !finishParentType.has(v.parent) &&
                 v.parent in this.val // 这个泛型的父类型有定义（完成处理过这个父类型就会删掉）
               ) {
                 const ParentData = this.val[v.parent]; // 泛型的父类型
@@ -83,7 +88,7 @@ export default class DefinitionsObjectClass {
                     if (diffData.properties) {
                       for (const propsName in diffData.properties) {
                         if (
-                          Object.prototype.hasOwnProperty.call(propsName, key)
+                          Object.prototype.hasOwnProperty.call(diffData.properties, propsName)
                         ) {
                           // TODO 这里的实现有点问题，应该结合泛型来写的。
                           // ParentData.properties[propsName].type = GenericMap[propsName];
@@ -93,11 +98,16 @@ export default class DefinitionsObjectClass {
                           // TODO 这里是针对JAVA的生成出来的代码处理的。
 
                           // 进行所有的 Schema 解析为 具体类型的表述，然后替换掉« » Array => List ( 希望匹配到 GenericMap 的 key )
-                          const diffElSub = new SchemaObjectClass(diffEl, this.base)
+                          const diffElSub = new SchemaObjectClass(
+                            diffEl,
+                            this.base
+                          )
                             .typescript()
-                            .dataType.replace(/Array</g, "List«")
+                            .dataType
                             .replace(/</g, "«")
-                            .replace(/>/g, "»");
+                            .replace(/>/g, "»")
+                            .replace(/Array</g, "List«")
+                            .replace(/Map</g, "Record«");
 
                           let genType = GenericMap[diffElSub]; // 查到 泛型标签
                           if (genType) {
@@ -121,7 +131,8 @@ export default class DefinitionsObjectClass {
 
                       // 完成之后，删掉原有的父类型
                       this.passTemplateType.push(v.parent);
-                      delete this.val[v.parent]; // 实现完成了泛型就删掉原有的。。。
+                      finishParentType.add(v.parent);
+                      // delete this.val[v.parent]; // 实现完成了泛型就删掉原有的。。。
                       this.val[
                         `${v.parent}<${GenericValueSubList.map(
                           (v) => `${v} = any`
@@ -163,16 +174,16 @@ export default class DefinitionsObjectClass {
             // 需要进行处理了。
             const name = changeTemplateType[key];
             // const type = element.type || "object"; // TODO
-            const subTypeIns = new SchemaObjectClass(element, this.base)
+            const subTypeIns = new SchemaObjectClass(element, this.base);
             const subType = subTypeIns.typescript();
-            
+
             dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
               subType.dataType
             }\n`;
           }
         } else {
           const name = key;
-          const subTypeIns = new SchemaObjectClass(element, this.base)
+          const subTypeIns = new SchemaObjectClass(element, this.base);
           const subType = subTypeIns.typescript();
 
           dataType += `${tag`${subType.comment}\n`}export type ${name} = ${
