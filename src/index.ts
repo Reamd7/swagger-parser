@@ -38,20 +38,25 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
     const defined = new DefinitionsObjectClass(data).typescript();
     console.log(JSON.stringify(defined.changeTemplateType));
 
-    const needSplitFile = "./@base";
-    PathsObjectEach(
-      PathItemObject(data.paths, data, needSplitFile),
-      (key, value) => {
-        OutPutFile(value, `./dist/${key}.ts`);
-      }
-    );
-
+    const needSplitFile = false;
+    // const needSplitFile = "./@base";
     const source = `
     ${baseInfo}
     const host = "${data.host}"
     const basePath = "${data.basePath}"
     export function apiRequest<T>(data:any) {}
     ${defined.dataType}
+    ${PathsObjectEach(
+      PathItemObject(data.paths, data, needSplitFile),
+      (key, value) => {
+        if (needSplitFile) {
+          OutPutFile(value, `./dist/${key}.ts`);
+          return "";
+        } else {
+          return value;
+        }
+      }
+    ).join("\n")}
     `;
 
     OutPutFile(source, "./dist/@base.ts");

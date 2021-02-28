@@ -98,7 +98,7 @@ export default class DefinitionsObjectClass {
                           const diffEl = diffData.properties[
                             propsName
                           ] as SchemaObject;
-                          // TODO 这里是针对JAVA的生成出来的代码处理的。
+                          // TODO 这里是针对JAVA的生成出来的代码处理的。所以才有«»
 
                           // 进行所有的 Schema 解析为 具体类型的表述，然后替换掉« » Array => List ( 希望匹配到 GenericMap 的 key )
                           const diffElSub = new SchemaObjectClass(

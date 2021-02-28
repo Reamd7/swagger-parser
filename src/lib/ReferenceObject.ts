@@ -1,4 +1,5 @@
 import type { ReferenceObject, Document } from "../base";
+import templateTypeParse from "../util/templateTypeParse";
 
 export const getDefinitionsObjectRef = (key: string) =>
   `#/definitions/${key.replace(/</g, "«").replace(/>/g, "»")}`;
@@ -37,8 +38,41 @@ export default class ReferenceObjectClass<T> {
       .replace(/>/g, "»")}`;
   }
   get Objectkey() {
-    return ReferenceObjectClass.getObjectkey(this.sourceKey, this.predictType);
-    // return this.sourceKey;
+    const type = this.predictType;
+    if (type === "definitions") {
+      let key = this.sourceKey;
+      key = key.startsWith(`#/${type}/`)
+        ? key.substring(`#/${type}/`.length)
+        : key;
+
+      // 这里添加一个父类型
+      const tempType = templateTypeParse(key);
+      if (typeof tempType === "string") {
+        // 这不是一个泛型。
+        return tempType;
+      } else {
+        const parentsType = tempType[0].parent;
+        if (
+          this.base.definitions ? this.base.definitions[parentsType] : false
+        ) {
+          // if (this.base[this.predictType]?[parentsType]) {
+          // 这是有泛型父模板的，所以肯定是处理过的泛型
+          return key
+            .replace(/«/g, "<")
+            .replace(/»/g, ">")
+            .replace(/List</g, "Array<")
+            .replace(/Map</g, "Record<");
+        } else {
+          return key.replace(/«/g, "_").replace(/»/g, "_");
+        }
+      }
+    } else {
+      return ReferenceObjectClass.getObjectkey(
+        this.sourceKey,
+        this.predictType
+      );
+      // return this.sourceKey;
+    }
   }
 
   get SourceObject(): T {
@@ -95,11 +129,10 @@ export default class ReferenceObjectClass<T> {
     key: string,
     type: "definitions" | "parameters" | "responses" = "definitions"
   ) {
-    // TODO 如果这是一个不存在泛型的父类型，则有严重问题。因为现有泛型支持还不完善，不能直接通过泛型子类型生成泛型父类型。。。
+    // NOTE: 这是不可能实现的，必须有父类型模板，然后与泛型模板diff才有可能生成出正确的泛型类）见 Readme.md;
     key = key.startsWith(`#/${type}/`)
       ? key.substring(`#/${type}/`.length)
       : key;
-
     return key
       .replace(/«/g, "<")
       .replace(/»/g, ">")
