@@ -10,6 +10,7 @@ import SchemaObjectClass from "../SchemaObject";
 interface ResponseObjectClassReturnType {
   dataType: string;
   comment: string;
+  depsIndentify: Set<string>
 }
 
 export default class ResponseObjectClass {
@@ -32,6 +33,7 @@ export default class ResponseObjectClass {
       return {
         dataType: subType.dataType,
         comment: subType.comment ? comment + subType.comment : comment,
+        depsIndentify: subType.depsIndentify
       };
     }
     // header response
@@ -40,6 +42,7 @@ export default class ResponseObjectClass {
     return {
       dataType: "",
       comment: comment,
+      depsIndentify: new Set<string>()
     };
   }
 
@@ -103,7 +106,7 @@ export class ResponsesMapObjectClass {
 
   typescript() {
     let result = "";
-
+    const depsIndentify = new Set<string>()
     const s = Object.entries(this.val)
       .map(([key, val]) => {
         if (val) {
@@ -113,6 +116,7 @@ export class ResponsesMapObjectClass {
             result += `\
 ${res.comment}
 export type ${TypeName} = ${res.dataType}`;
+            res.depsIndentify.forEach(v => depsIndentify.add(v));
             return TypeName;
           }
         }
@@ -120,8 +124,9 @@ export type ${TypeName} = ${res.dataType}`;
       })
       .filter(Boolean);
 
-    return (
-      `export type ${this.ResponsesKey} = ${s.length > 0 ? s.join(" | ") : "unknown"}` + "\n" + result
-    );
+    return {
+      dataType: `export type ${this.ResponsesKey} = ${s.length > 0 ? s.join(" | ") : "unknown"}` + "\n" + result,
+      depsIndentify
+    };
   }
 }

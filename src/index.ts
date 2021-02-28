@@ -7,15 +7,15 @@ import { Document } from "./base";
 import prettier = require("prettier");
 
 const baseInfo = `
-type int32 = number;
-type int64 = number;
-type float = number;
-type double = number;
-type byte = string;
-type binary = string;
-type date = string;
-type datetime = string;
-type password = string;
+export type int32 = number;
+export type int64 = number;
+export type float = number;
+export type double = number;
+export type byte = string;
+export type binary = string;
+export type date = string;
+export type datetime = string;
+export type password = string;
 `;
 const needFormat = true;
 
@@ -38,8 +38,8 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
     const defined = new DefinitionsObjectClass(data).typescript();
     console.log(JSON.stringify(defined.changeTemplateType));
 
-    const needSplitFile = false;
-    // const needSplitFile = "./@base";
+    // const needSplitFile = false;
+    const needSplitFile = "./@base";
     const source = `
     ${baseInfo}
     const host = "${data.host}"

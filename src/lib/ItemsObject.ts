@@ -5,6 +5,7 @@ import { isReferenceObject } from "./ReferenceObject";
 export interface ItemsObjectClassReturnType {
   dataType: string;
   comment: string;
+  depsIndentify: Set<string>
 }
 
 /**
@@ -116,6 +117,7 @@ export default class ItemsObjectClass {
     const data = this.val;
     let dataType = data.type || "unknown";
     let comment = ``;
+    const depsIndentify = new Set<string>();
 
     switch (data.type) {
       case "string":
@@ -124,6 +126,7 @@ export default class ItemsObjectClass {
           dataType = data.enum.map((v) => `"${v}"`).join(" | ");
         } else if (data.format) {
           dataType = data.format.replace(/\-/g, "");
+          depsIndentify.add(dataType);
         } else {
           dataType = "string";
         }
@@ -136,6 +139,7 @@ export default class ItemsObjectClass {
           dataType = data.enum.join(" | ");
         } else if (data.format) {
           dataType = data.format;
+          depsIndentify.add(dataType);
         } else {
           dataType = "number";
         }
@@ -151,10 +155,14 @@ export default class ItemsObjectClass {
               return new ItemsClass(v, this.base).typescript();
             });
             dataType = subType.map((v) => v.dataType).join(", ");
+            subType.forEach(v => {
+              v.depsIndentify.forEach(v => depsIndentify.add(v))
+            });
           } else {
             // 支持 ItemsObject 类型的，=> Array<T>
             let subType = new ItemsClass(data.items, this.base).typescript();
             dataType = `Array<${subType.dataType}>`;
+            subType.depsIndentify.forEach(v => depsIndentify.add(v))
           }
         } else {
           dataType = "Array<unknown>";
@@ -165,6 +173,7 @@ export default class ItemsObjectClass {
     return {
       dataType,
       comment,
+      depsIndentify
     };
   }
 
@@ -200,13 +209,14 @@ export class ItemsClass {
 
     if (isReferenceObject(data)) {
       dataType = this._rawRef!.Objectkey;
+      return {
+        dataType,
+        comment,
+        depsIndentify: this._rawRef!.depsIndentify
+      };
     } else {
       return this._class!.typescript();
     }
-    return {
-      dataType,
-      comment,
-    };
   }
 
   javascript() {}

@@ -6,6 +6,17 @@ export const outerType = {
   Array: ["List"],
   Map: "Record",
 };
+export const inlineTypeList = [
+  "string",
+  "number",
+  "boolean",
+  "object",
+  "array",
+  "null",
+  "Array",
+  "Record"
+]
+
 export interface TemplateType {
   parent: string;
   args: Array<TemplateType | string>;

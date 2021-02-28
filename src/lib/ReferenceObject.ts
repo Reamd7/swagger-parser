@@ -1,5 +1,8 @@
 import type { ReferenceObject, Document } from "../base";
-import templateTypeParse from "../util/templateTypeParse";
+import templateTypeParse, {
+  inlineTypeList,
+  templateTypeEach,
+} from "../util/templateTypeParse";
 
 export const getDefinitionsObjectRef = (key: string) =>
   `#/definitions/${key.replace(/</g, "«").replace(/>/g, "»")}`;
@@ -37,7 +40,21 @@ export default class ReferenceObjectClass<T> {
       .replace(/</g, "«")
       .replace(/>/g, "»")}`;
   }
+
+  private _depsIndentify: Set<string> = new Set<string>();
+  private _Objectkey: string = "";
+
+  get depsIndentify() {
+    if (this._depsIndentify.size === 0) {
+      // 没有调用 Objectkey
+      this.Objectkey;
+    }
+    return this._depsIndentify;
+  }
+
   get Objectkey() {
+    if (this._Objectkey) return this._Objectkey;
+
     const type = this.predictType;
     if (type === "definitions") {
       let key = this.sourceKey;
@@ -49,28 +66,43 @@ export default class ReferenceObjectClass<T> {
       const tempType = templateTypeParse(key);
       if (typeof tempType === "string") {
         // 这不是一个泛型。
-        return tempType;
+        this._depsIndentify.add(tempType);
+        return (this._Objectkey = tempType);
       } else {
         const parentsType = tempType[0].parent;
         if (
           this.base.definitions ? this.base.definitions[parentsType] : false
         ) {
+          templateTypeEach(tempType[0], (type) => {
+            if (!inlineTypeList.includes(type.parent)) {
+              this._depsIndentify.add(type.parent);
+            }
+            type.args.forEach((v) => {
+              if (typeof v === "string" && !inlineTypeList.includes(v)) {
+                this._depsIndentify.add(v);
+              }
+            });
+          });
           // if (this.base[this.predictType]?[parentsType]) {
           // 这是有泛型父模板的，所以肯定是处理过的泛型
-          return key
+          return (this._Objectkey = key
             .replace(/«/g, "<")
             .replace(/»/g, ">")
             .replace(/List</g, "Array<")
-            .replace(/Map</g, "Record<");
+            .replace(/Map</g, "Record<"));
         } else {
-          return key.replace(/«/g, "_").replace(/»/g, "_");
+          this._Objectkey = key.replace(/«/g, "_").replace(/»/g, "_");
+          this._depsIndentify.add(this._Objectkey);
+          return this._Objectkey;
         }
       }
     } else {
-      return ReferenceObjectClass.getObjectkey(
+      this._Objectkey = ReferenceObjectClass.getObjectkey(
         this.sourceKey,
         this.predictType
       );
+      this._depsIndentify.add(this._Objectkey);
+      return this._Objectkey;
       // return this.sourceKey;
     }
   }

@@ -18,6 +18,7 @@ export default class ParameterObjectClass {
 
   typescript() {
     const data = this._raw;
+    let depsIndentify: Set<string>
     const comment = tag`\n/** ${data.description} */`;
     let dataType = "";
     if (data.in === "body") {
@@ -25,12 +26,14 @@ export default class ParameterObjectClass {
         data.schema,
         this.base
       ).typescript();
+      depsIndentify = subType.depsIndentify;
       dataType += `${comment + subType.comment}
       ${data.name}${this.requiredString}: ${subType.dataType}`;
     } else {
       if (data.type === "file") {
         dataType += `${comment}
         ${data.name}${this.requiredString}: File`;
+        depsIndentify = new Set<string>();
       } else {
         // TODO NOTE 实际上这里是不合适的，因为 collectionFormat?: "csv" | "ssv" | "tsv" | "pipes" 类型不匹配，在暂时不用这个的情况下，可以临时用
         const subType = new ItemsObjectClass(
@@ -39,11 +42,13 @@ export default class ParameterObjectClass {
         ).typescript();
         dataType += `${comment + subType.comment}
         ${data.name}${this.requiredString}: ${subType.dataType}`;
+        depsIndentify = subType.depsIndentify;
       }
     }
 
     return {
       dataType,
+      depsIndentify
     };
   }
 
@@ -84,9 +89,7 @@ export class ParameterClass {
   }
 
   typescript() {
-    return {
-      dataType: this._class.typescript().dataType,
-    };
+    return this._class.typescript();
   }
 
   javascript() {}

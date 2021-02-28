@@ -19,6 +19,7 @@ interface OperationObjectReturnType {
     ["content-type"]: string[];
     ["accept"]: string[];
   };
+  depsIndentify: Set<string>
 }
 
 export default class OperationObjectClass {
@@ -64,6 +65,8 @@ export default class OperationObjectClass {
     // const operationId = data.operationId // 按道理是用这个的，但是，但是，JAVA swagger 生成器，会用函数名作为此参数值，但是，因为java写的不规范的情况下，这玩意会冲突，所以很多_1 的标识，
     let dataType = "";
     let comment = "";
+    const depsIndentify = new Set<string>()
+
     if (data.summary || data.description || data.deprecated) {
       comment = `/**
        ${tag`* ${data.deprecated ? "@deprecated\n" : ""}`}/
@@ -87,7 +90,9 @@ export default class OperationObjectClass {
         if (!paramsRecord[r.in]) {
           paramsRecord[r.in] = {};
         }
-        paramsRecord[r.in][r.name] = subTypeIns.typescript().dataType;
+        const res = subTypeIns.typescript()
+        paramsRecord[r.in][r.name] = res.dataType;
+        res.depsIndentify.forEach(v => depsIndentify.add(v));
       }
     }
     const headerRequired = (() => {
@@ -144,6 +149,8 @@ export default class OperationObjectClass {
       this.operationId
     );
     const responseType = responseIns.typescript();
+    
+    responseType.depsIndentify.forEach(v => depsIndentify.add(v));
 
     return {
       data: {
@@ -153,12 +160,13 @@ export default class OperationObjectClass {
         },
         response: {
           key: responseIns.ResponsesKey,
-          type: responseType,
+          type: responseType.dataType,
         },
         accept: produces,
         "content-type": consumes,
       },
       comment,
+      depsIndentify
     };
   }
 }

@@ -7,6 +7,7 @@ import ReferenceObjectClass from "./ReferenceObject";
 export interface SchemaObjectClassReturnType {
   dataType: string;
   comment: string;
+  depsIndentify: Set<string>
 }
 
 /**
@@ -66,11 +67,13 @@ export default class SchemaObjectClass {
       return {
         comment: comment,
         dataType: subDataType.Objectkey,
+        depsIndentify: subDataType.depsIndentify
       };
     } else {
       // -----------------------------------------------------
       // 如果不是支持的类型就原样输出
       // 目的是支持泛型的能力
+      const depsIndentify = new Set<string>();
       let dataType = data.type || "unknown";
       let comment =
         data.title || data.description || data.readOnly !== undefined
@@ -94,6 +97,7 @@ ${[
             dataType = data.enum.map((v) => `"${v}"`).join(" | ");
           } else if (data.format) {
             dataType = data.format.replace(/\-/g, "");
+            depsIndentify.add(dataType)
           } else {
             dataType = "string";
           }
@@ -106,6 +110,7 @@ ${[
             dataType = data.enum.join(" | ");
           } else if (data.format) {
             dataType = data.format;
+            depsIndentify.add(dataType)
           } else {
             dataType = "number";
           }
@@ -124,6 +129,7 @@ ${[
             // } else {
             let subType = new ItemsClass(data.items, this.base).typescript();
             dataType = `Array<${subType.dataType}>`;
+            subType.depsIndentify.forEach(v => depsIndentify.add(v));
             // }
           } else {
             dataType = "Array<unknown>";
@@ -160,11 +166,17 @@ ${[
                 ${subType.comment}
                 ${isReadOnly}${propsName}${isRequired}: ${subType.dataType}
               `.trim(),
+                depsIndentify: subType.depsIndentify
               };
             });
             dataType =
               `{ ${subType.map((v) => v.dataType).join("\n")} }` +
               additionalType;
+
+            subType.forEach((v)=> {
+              v.depsIndentify.forEach(v => depsIndentify.add(v));
+            });
+
           } else {
             dataType = `Record<string,object>`;
           }
@@ -173,6 +185,7 @@ ${[
       return {
         dataType,
         comment,
+        depsIndentify
       };
     }
   }

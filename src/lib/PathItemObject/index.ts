@@ -43,6 +43,7 @@ export default function PathsObject(
 
         res[operationId] = `\
 ${splitFiles ? tag`import { apiRequest } from "${splitFiles}";\n` : ""}\
+${splitFiles ? tag`import type { ${[...subType.depsIndentify].join(",")} } from "${splitFiles}";\n` : ""}\
 ${subType.data.params.type}
 ${subType.data.response.type}
 
