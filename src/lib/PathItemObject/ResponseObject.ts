@@ -102,7 +102,6 @@ export class ResponsesMapObjectClass {
   }
 
   typescript() {
-    // TODO 暂时来说 axios 只能用 一个 Response 因为 AxiosResponse 有局限性
     let result = "";
 
     const s = Object.entries(this.val)

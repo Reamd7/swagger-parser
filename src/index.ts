@@ -17,7 +17,19 @@ type date = string;
 type datetime = string;
 type password = string;
 `;
-const needFormat = false;
+const needFormat = true;
+
+function OutPutFile(source: string, file: string) {
+  return fs.writeFileSync(
+    file,
+    needFormat
+      ? prettier.format(source, {
+          parser: "babel-ts",
+        })
+      : source
+  );
+}
+
 // http://localhost:8008/api/v2/api-docs
 GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
   (buf) => {
@@ -25,25 +37,23 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
 
     const defined = new DefinitionsObjectClass(data).typescript();
     console.log(JSON.stringify(defined.changeTemplateType));
+
+    const needSplitFile = "./@base";
+    PathsObjectEach(
+      PathItemObject(data.paths, data, needSplitFile),
+      (key, value) => {
+        OutPutFile(value, `./dist/${key}.ts`);
+      }
+    );
+
     const source = `
     ${baseInfo}
     const host = "${data.host}"
     const basePath = "${data.basePath}"
-    function apiRequest<T>(data:any) {}
+    export function apiRequest<T>(data:any) {}
     ${defined.dataType}
-
-    ${PathsObjectEach(
-      PathItemObject(data.paths, data, false),
-      (key, value) => value
-    ).join("\n")}
     `;
-    fs.writeFileSync(
-      "./dist/out.ts",
-      needFormat
-        ? prettier.format(source, {
-            parser: "babel-ts",
-          })
-        : source
-    );
+
+    OutPutFile(source, "./dist/@base.ts");
   }
 );

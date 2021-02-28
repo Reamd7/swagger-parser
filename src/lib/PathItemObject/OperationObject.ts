@@ -74,7 +74,7 @@ export default class OperationObjectClass {
     // 没有file params 情况下，就不需要 multipart/form-data
 
     // TODO 因为我没有见过这里面有用reference的情况，所以，先暂时忽略。
-    // TODO 针对参数的识别，统一这里只是支持 OperationObject 内部直接定义的，不支持 ref，也不支持 PathItemObject 的 parameters，主要是没有遇见到。
+    // 针对参数的识别，统一这里只是支持 OperationObject 内部直接定义的，不支持 ref，也不支持 PathItemObject 的 parameters，主要是没有遇见到。
     const paramsRecord: Record<string, Record<string, string>> = {};
     if (data.parameters) {
       for (const params of data.parameters) {
@@ -83,7 +83,6 @@ export default class OperationObjectClass {
         // hook
         if (r.in === "header" && r.name === "Authorization") {
           r.required = false;
-          debugger;
         }
         if (!paramsRecord[r.in]) {
           paramsRecord[r.in] = {};

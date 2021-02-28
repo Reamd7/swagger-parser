@@ -49,6 +49,8 @@ export default class ReferenceObjectClass<T> {
         const definedSet = this.base[this.predictType];
         const subType = definedSet ? definedSet[this.sourceKey] : undefined;
         if (!subType) {
+          // 这首先有一个处理的逻辑可以处理一下
+          // TODO 泛型的父类型重新指定
           debugger;
           throw Error(`${this.val.$ref} 不存在`);
         }
@@ -83,20 +85,21 @@ export default class ReferenceObjectClass<T> {
       }
     }
   }
-  static getObjectRef(
-    key: string,
-    type: "definitions" | "parameters" | "responses" = "definitions"
-  ) {
-    return `#/${type}/${key.replace(/</g, "«").replace(/>/g, "»")}`;
-  }
+  // static getObjectRef(
+  //   key: string,
+  //   type: "definitions" | "parameters" | "responses" = "definitions"
+  // ) {
+  //   return `#/${type}/${key.replace(/</g, "«").replace(/>/g, "»")}`;
+  // }
   static getObjectkey(
     key: string,
     type: "definitions" | "parameters" | "responses" = "definitions"
   ) {
+    // TODO 如果这是一个不存在泛型的父类型，则有严重问题。因为现有泛型支持还不完善，不能直接通过泛型子类型生成泛型父类型。。。
     key = key.startsWith(`#/${type}/`)
       ? key.substring(`#/${type}/`.length)
       : key;
-    
+
     return key
       .replace(/«/g, "<")
       .replace(/»/g, ">")

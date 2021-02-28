@@ -42,6 +42,7 @@ export default class DefinitionsObjectClass {
   private val: DefinitionsObject;
   private base: Document;
   private passTemplateType: string[] = [];
+
   constructor(base: Document) {
     this.val = base["definitions"]!;
     this.base = base;
@@ -49,8 +50,7 @@ export default class DefinitionsObjectClass {
 
   Generic() {
     // 用一个记录器将他修了。
-    const finishParentType = new Set();
-    // const passTemplateType = this.passTemplateType;
+    const passTemplateType = this.passTemplateType;
     // 由于 OpenApi 里面没有泛型 的支持
     for (const key in this.val) {
       if (Object.prototype.hasOwnProperty.call(this.val, key)) {
@@ -61,7 +61,7 @@ export default class DefinitionsObjectClass {
             // 这是必然的, 因为上一个 indexOf
             templateTypeEach(tempType[0], (v) => {
               if (
-                !finishParentType.has(v.parent) &&
+                !passTemplateType.includes(v.parent) &&
                 v.parent in this.val // 这个泛型的父类型有定义（完成处理过这个父类型就会删掉）
               ) {
                 const ParentData = this.val[v.parent]; // 泛型的父类型
@@ -88,7 +88,10 @@ export default class DefinitionsObjectClass {
                     if (diffData.properties) {
                       for (const propsName in diffData.properties) {
                         if (
-                          Object.prototype.hasOwnProperty.call(diffData.properties, propsName)
+                          Object.prototype.hasOwnProperty.call(
+                            diffData.properties,
+                            propsName
+                          )
                         ) {
                           // TODO 这里的实现有点问题，应该结合泛型来写的。
                           // ParentData.properties[propsName].type = GenericMap[propsName];
@@ -103,8 +106,7 @@ export default class DefinitionsObjectClass {
                             this.base
                           )
                             .typescript()
-                            .dataType
-                            .replace(/</g, "«")
+                            .dataType.replace(/</g, "«")
                             .replace(/>/g, "»")
                             .replace(/Array</g, "List«")
                             .replace(/Map</g, "Record«");
@@ -131,8 +133,7 @@ export default class DefinitionsObjectClass {
 
                       // 完成之后，删掉原有的父类型
                       this.passTemplateType.push(v.parent);
-                      finishParentType.add(v.parent);
-                      // delete this.val[v.parent]; // 实现完成了泛型就删掉原有的。。。
+                      // delete this.val[v.parent]; // 不能删除，因为 ReferenceObject 处还要找到这个原有的类型。
                       this.val[
                         `${v.parent}<${GenericValueSubList.map(
                           (v) => `${v} = any`
@@ -161,6 +162,7 @@ export default class DefinitionsObjectClass {
 
     for (const key in this.val) {
       if (Object.hasOwnProperty.call(this.val, key)) {
+        if (this.passTemplateType.includes(key)) continue; // 在这里去除掉已经存在的泛型父类型 的输出
         const element = this.val[key];
         if (key.indexOf("«") !== -1 && key.indexOf("»") !== -1) {
           // 进行解析，然后，得到parent，然后进行按需过滤。

@@ -42,7 +42,7 @@ export default function PathsObject(
         }).typescript();
 
         res[operationId] = `\
-${splitFiles ? tag`import { apiRequest } from "${splitFiles}" ` : ""}\
+${splitFiles ? tag`import { apiRequest } from "${splitFiles}";\n` : ""}\
 ${subType.data.params.type}
 ${subType.data.response.type}
 
