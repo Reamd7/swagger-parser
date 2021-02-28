@@ -84,8 +84,6 @@ export default class ReferenceObjectClass<T> {
         const subType = definedSet ? definedSet[this.sourceKey] : undefined;
         if (!subType) {
           // 这首先有一个处理的逻辑可以处理一下
-          // TODO 泛型的父类型重新指定
-          debugger;
           throw Error(`${this.val.$ref} 不存在`);
         }
         if (subType.$ref) {

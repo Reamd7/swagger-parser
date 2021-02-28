@@ -32,7 +32,7 @@ export default class ParameterObjectClass {
         dataType += `${comment}
         ${data.name}${this.requiredString}: File`;
       } else {
-        // TODO 实际上这里是不合适的，因为 collectionFormat?: "csv" | "ssv" | "tsv" | "pipes" 类型不匹配，在暂时不用这个的情况下，可以临时用
+        // TODO NOTE 实际上这里是不合适的，因为 collectionFormat?: "csv" | "ssv" | "tsv" | "pipes" 类型不匹配，在暂时不用这个的情况下，可以临时用
         const subType = new ItemsObjectClass(
           data as any,
           this.base

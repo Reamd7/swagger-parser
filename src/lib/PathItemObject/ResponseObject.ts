@@ -35,7 +35,7 @@ export default class ResponseObjectClass {
       };
     }
     // header response
-    // TODO 暂时忽略。 AxiosResponse 的 headers 是 any;
+    // TODO NOTE 暂时忽略。 AxiosResponse 的 headers 是 any;
 
     return {
       dataType: "",

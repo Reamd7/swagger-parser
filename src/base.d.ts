@@ -1,4 +1,4 @@
-// TODO 仔细针对 ReferenceObject 进行处理，因为规范 和 具体实现有点不一样
+// NOTE 仔细针对 ReferenceObject 进行处理，因为规范 和 具体实现有点不一样
 
 type IntDataFormat = "int32" | "int64";
 type numberDataFormat = "float" | "double";

@@ -47,7 +47,7 @@ ${subType.data.params.type}
 ${subType.data.response.type}
 
 export ${splitFiles ? "default" : ""} function ${operationId}(params: ${subType.data.params.key}) {
-  // TODO 这里还没有实现 params 参数的校验
+  // TODO NOTE 这里还没有实现 params 参数的校验
   return apiRequest<${subType.data.response.key}>({
     url: "${url}",
     params: params,
