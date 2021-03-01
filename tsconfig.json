@@ -6,7 +6,8 @@
         "target": "ES6",
         "noImplicitAny": false,
         "sourceMap": false,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "outDir": "./dist"
     },
     "exclude": [
       "node_modules"
