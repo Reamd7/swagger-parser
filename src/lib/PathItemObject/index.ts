@@ -3,7 +3,7 @@ import noSupport from "../../util/noSupport";
 import tag from "../../util/tag";
 import OperationObjectClass from "./OperationObject";
 
-const methodList = [
+export const methodList = [
   "get",
   "put",
   "post",
@@ -42,7 +42,7 @@ export default function PathsObject(
         }).typescript();
 
         res[operationId] = `\
-${splitFiles ? tag`import { apiRequest } from "${splitFiles}";\n` : ""}\
+${splitFiles ? tag`import { apiRequest, ApiResponse } from "${splitFiles}";\n` : ""}\
 ${splitFiles ? tag`import type { ${[...subType.depsIndentify].join(",")} } from "${splitFiles}";\n` : ""}\
 ${subType.data.params.type}
 ${subType.data.response.type}
@@ -53,8 +53,8 @@ export ${splitFiles ? "default" : ""} function ${operationId}(params: ${subType.
     url: "${url}",
     params: params,
     method: "${method}",
-    accept: "${subType.data.accept.join(";")}",
-    contentType: "${subType.data["content-type"].join(";")}"
+    accept: "${subType.data.accept.join(",")}",
+    contentType: "${subType.data["content-type"].join(",")}"
   })
 }`;
       }

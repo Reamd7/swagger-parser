@@ -1,10 +1,11 @@
 import "./console";
 import fs = require("fs");
 import DefinitionsObjectClass from "./lib/DefinitionsObject";
-import PathItemObject, { PathsObjectEach } from "./lib/PathItemObject";
+import PathItemObject, { methodList, PathsObjectEach } from "./lib/PathItemObject";
 import GetSwaggerJSON from "./util/GetSwaggerJSON";
 import { Document } from "./base";
 import prettier = require("prettier");
+import { In } from "./lib/PathItemObject/OperationObject";
 
 const baseInfo = `
 export type int32 = number;
@@ -36,15 +37,66 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
     const data = JSON.parse(buf.toString()) as Document;
 
     const defined = new DefinitionsObjectClass(data).typescript();
-    console.log(JSON.stringify(defined.changeTemplateType));
 
     // const needSplitFile = false;
     const needSplitFile = "./@base";
     const source = `
+    import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
     ${baseInfo}
     const host = "${data.host}"
     const basePath = "${data.basePath}"
-    export function apiRequest<T>(data:any) {}
+    interface apiRequestParams {
+      url: string;
+      method: ${methodList.map(v => `"${v}"`).join(" | ")};
+      accept: string;
+      contentType: string;
+      params: Partial<Record<${In.map(v => `"${v}"`).join(" | ")}, any>>
+    }
+    export interface ApiResponse<status extends number, T> {
+      data: T;
+      status: status;
+      statusText: string;
+      headers: any;
+      config: AxiosRequestConfig;
+      request?: any;
+    }
+    
+    const axiosInstance = axios.create({
+      baseURL: "${data.host}${data.basePath}",
+    });
+    
+    export function apiRequest<T extends AxiosResponse<any>>(data: apiRequestParams) {
+      let url = data.url;
+      // path
+      if (data.params.path) {
+        for (const key in data.params.path) {
+          if (Object.prototype.hasOwnProperty.call(data.params.path, key)) {
+            const element = data.params.path[key];
+            if (element !== undefined) {
+              url.replace(new RegExp('\\{\\s.*' + key +'\\s.*\\}', "g"), element.toString())
+            }
+          }
+        }
+      }
+      // header
+      const headers = data.params.header || {};
+      if (data.accept) {
+        headers['accept'] = data.accept
+      }
+      if (data.contentType) {
+        headers['content-type'] = data.contentType
+      }
+      // post data
+      let __data__ = data.params.formData || data.params.body
+      return axiosInstance.request<any, T>({
+        url: data.url,
+        method: data.method === "del" ? "delete" : data.method,
+        params: data.params.query,
+        headers: headers,
+        data: __data__
+      });
+    }
+
     ${defined.dataType}
     ${PathsObjectEach(
       PathItemObject(data.paths, data, needSplitFile),

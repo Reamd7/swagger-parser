@@ -115,7 +115,7 @@ export class ResponsesMapObjectClass {
             const TypeName = `${this.operationId}Response${key}`;
             result += `\
 ${res.comment}
-export type ${TypeName} = ${res.dataType}`;
+export type ${TypeName} = ApiResponse<${key}, ${res.dataType}>`;
             res.depsIndentify.forEach(v => depsIndentify.add(v));
             return TypeName;
           }
@@ -125,7 +125,7 @@ export type ${TypeName} = ${res.dataType}`;
       .filter(Boolean);
 
     return {
-      dataType: `export type ${this.ResponsesKey} = ${s.length > 0 ? s.join(" | ") : "unknown"}` + "\n" + result,
+      dataType: `export type ${this.ResponsesKey} = ${s.length > 0 ? s.join(" | ") : "ApiResponse<number, unknown>"}` + "\n" + result,
       depsIndentify
     };
   }

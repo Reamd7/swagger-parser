@@ -4,9 +4,6 @@
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
         "target": "ES6",
-        "lib": [
-          "ESNext"
-        ],
         "noImplicitAny": false,
         "sourceMap": false,
         "strictNullChecks": true

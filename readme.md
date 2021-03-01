@@ -40,3 +40,13 @@ type Test = Params<string> = {
 //   doc: string;
 // }
 // 所以可以推出，这根本没有一个可行的路径根据一个泛型具体结构推导出泛型模板类。
+
+
+- 未来增强计划：
+  - 实现 mock
+  - 实现 params 校验
+  - 里面还有些暂时无法处理的 TODO
+  - 实现JavaScript JSDOC 版本
+
+  - copy 支持 typescript axios
+  
