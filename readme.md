@@ -49,4 +49,4 @@ type Test = Params<string> = {
   - 实现JavaScript JSDOC 版本
 
   - copy 支持 typescript axios
-  
+  - 支持 模板化 

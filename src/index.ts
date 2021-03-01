@@ -1,5 +1,6 @@
 import "./console";
 import fs = require("fs");
+import path = require("path");
 import DefinitionsObjectClass from "./lib/DefinitionsObject";
 import PathItemObject, { methodList, PathsObjectEach } from "./lib/PathItemObject";
 import GetSwaggerJSON from "./util/GetSwaggerJSON";
@@ -31,6 +32,23 @@ function OutPutFile(source: string, file: string) {
   );
 }
 
+// function template() {
+
+// }
+// /**
+//  * @param uri 文件路径，支持URL 和 本地文件路径
+//  * @param needSplitFile 是否将他分割输出
+//  */
+// function ParserSwagger(
+//   uri: string, 
+//   outFile: string,
+//   needSplitFile: boolean = true,
+// ) {
+//   const info = path.parse(outFile);
+//   const { dir, base } = info
+  
+// }
+
 // http://localhost:8008/api/v2/api-docs
 GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
   (buf) => {
@@ -42,7 +60,6 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
     const needSplitFile = "./@base";
     const source = `
     import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-    ${baseInfo}
     const host = "${data.host}"
     const basePath = "${data.basePath}"
     interface apiRequestParams {
@@ -96,7 +113,7 @@ GetSwaggerJSON("C:/Users/Gemini/Desktop/myapp/src/api/index.ts.json").then(
         data: __data__
       });
     }
-
+    ${baseInfo}
     ${defined.dataType}
     ${PathsObjectEach(
       PathItemObject(data.paths, data, needSplitFile),
