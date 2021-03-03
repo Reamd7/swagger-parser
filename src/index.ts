@@ -117,13 +117,13 @@ export function apiRequest<T extends AxiosResponse<any>>(data: apiRequestParams)
   }
   // ----------- post data -----------
   let __data__ = data.params.formData || data.params.body
-  return axiosInstance.request<any, T>({
+  return axiosInstance.request<any>({
     url,
     method: data.method === "del" ? "delete" : data.method,
     params: data.params.query,
     headers: headers,
     data: __data__
-  });
+  }) as Promise<T>;
 }` +
       `${baseInfo}\n` +
       `${defined.dataType}\n` +

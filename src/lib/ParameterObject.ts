@@ -28,7 +28,7 @@ export default class ParameterObjectClass {
       ).typescript();
       depsIndentify = subType.depsIndentify;
       dataType += `${comment + subType.comment}
-      ${data.name}${this.requiredString}: ${subType.dataType}`;
+      ${data.in}${this.requiredString}: ${subType.dataType}`;
     } else {
       if (data.type === "file") {
         dataType += `${comment}

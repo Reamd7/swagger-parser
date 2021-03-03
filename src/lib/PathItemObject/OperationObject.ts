@@ -19,7 +19,7 @@ interface OperationObjectReturnType {
     ["content-type"]: string[];
     ["accept"]: string[];
   };
-  depsIndentify: Set<string>
+  depsIndentify: Set<string>;
 }
 
 export default class OperationObjectClass {
@@ -56,16 +56,18 @@ export default class OperationObjectClass {
     this.method = method;
   }
 
-  typescript(base: {
-    consumes?: MimeTypes;
-    produces?: MimeTypes;
-  } = this.base): OperationObjectReturnType {
+  typescript(
+    base: {
+      consumes?: MimeTypes;
+      produces?: MimeTypes;
+    } = this.base
+  ): OperationObjectReturnType {
     const data = this.val;
     const operationId = this.operationId;
     // const operationId = data.operationId // 按道理是用这个的，但是，但是，JAVA swagger 生成器，会用函数名作为此参数值，但是，因为java写的不规范的情况下，这玩意会冲突，所以很多_1 的标识，
     let dataType = "";
     let comment = "";
-    const depsIndentify = new Set<string>()
+    const depsIndentify = new Set<string>();
 
     if (data.summary || data.description || data.deprecated) {
       comment = `/**
@@ -75,10 +77,12 @@ export default class OperationObjectClass {
        */`;
     }
     // 没有file params 情况下，就不需要 multipart/form-data
-
     // TODO NOTE 因为我没有见过这里面有用reference的情况，所以，先暂时忽略。
     // 针对参数的识别，统一这里只是支持 OperationObject 内部直接定义的，不支持 ref，也不支持 PathItemObject 的 parameters，主要是没有遇见到。
-    const paramsRecord: Record<string, Record<string, string>> = {};
+    const paramsRecord: Partial<
+      Record<"path" | "query" | "formData" | "header", Record<string, string>> &
+        Record<"body", string>
+    > = {};
     if (data.parameters) {
       for (const params of data.parameters) {
         const subTypeIns = new ParameterClass(params, this.base);
@@ -87,12 +91,16 @@ export default class OperationObjectClass {
         if (r.in === "header" && r.name === "Authorization") {
           r.required = false;
         }
-        if (!paramsRecord[r.in]) {
-          paramsRecord[r.in] = {};
+        const res = subTypeIns.typescript();
+        if (r.in === "body") {
+          paramsRecord[r.in] = res.dataType;
+        } else {
+          if (!paramsRecord[r.in]) {
+            paramsRecord[r.in] = {};
+          }
+          paramsRecord[r.in]![r.name] = res.dataType;
         }
-        const res = subTypeIns.typescript()
-        paramsRecord[r.in][r.name] = res.dataType;
-        res.depsIndentify.forEach(v => depsIndentify.add(v));
+        res.depsIndentify.forEach((v) => depsIndentify.add(v));
       }
     }
     const headerRequired = (() => {
@@ -110,15 +118,17 @@ export default class OperationObjectClass {
     const needFormData = "formData" in paramsRecord;
     const l = In.map((type) => {
       if (type === "header") {
+        const val = paramsRecord[type];
+        return val
+          ? `${type}${headerRequired}: { ${Object.values(val).join("\n")} }`
+          : "";
+      } else if (type === "body") {
         return paramsRecord[type]
-          ? `${type}${headerRequired}: { ${Object.values(
-              paramsRecord[type]
-            ).join("\n")} }`
+          ? paramsRecord[type]
           : "";
       } else {
-        return paramsRecord[type]
-          ? `${type}: { ${Object.values(paramsRecord[type]).join("\n")} }`
-          : "";
+        const val = paramsRecord[type];
+        return val ? `${type}: { ${Object.values(val).join("\n")} }` : "";
       }
     });
     // ----------------------------------------------------------
@@ -149,8 +159,8 @@ export default class OperationObjectClass {
       this.operationId
     );
     const responseType = responseIns.typescript();
-    
-    responseType.depsIndentify.forEach(v => depsIndentify.add(v));
+
+    responseType.depsIndentify.forEach((v) => depsIndentify.add(v));
 
     return {
       data: {
@@ -166,7 +176,7 @@ export default class OperationObjectClass {
         "content-type": consumes,
       },
       comment,
-      depsIndentify
+      depsIndentify,
     };
   }
 }
