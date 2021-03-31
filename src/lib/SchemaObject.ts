@@ -125,7 +125,7 @@ ${[
           let additionalType = "";
 
           if (data.additionalProperties === true) {
-            additionalType = `& { [index: string] : any} `;
+            additionalType = `{ [index: string] : any} `;
           } else if (typeof data.additionalProperties === "object") {
             const ref = new SchemaObjectClass(
               data.additionalProperties,
@@ -134,7 +134,7 @@ ${[
             const subType = ref.typescript();
             const isReadOnly = ref.SourceObject.readOnly === true;
 
-            additionalType = `& {
+            additionalType = `{
             ${subType.comment}
             ${isReadOnly ? "readonly " : ""}[index: string]: ${subType.dataType}
           } `;
@@ -157,13 +157,18 @@ ${[
             });
             dataType =
               `{ ${subType.map((v) => v.dataType).join("\n")} }` +
-              additionalType;
+              (additionalType ? `& ${additionalType}` : "")
 
             subType.forEach((v) => {
               v.depsIndentify.forEach((v) => depsIndentify.add(v));
             });
           } else {
-            dataType = `Record<string,object>`;
+            // 出现这种可能，只有additionalProperties，但是没有properties 情况下就会出现问题
+            if (additionalType) {
+              dataType = additionalType;
+            } else {
+              dataType = `Record<string, any>`;
+            }
           }
           break;
       }
